@@ -143,205 +143,205 @@ describe("receiver", () => {
 
     await confirmTransaction(initialize);
 
-    // let maintainers = await program.account.maintainers.fetch(pdaMaintainers);
-    // assert.equal(maintainers.admin.toString(), admin.publicKey.toString());
-    // assert.isTrue(
-    //   JSON.stringify(maintainers.subAdmins).includes(
-    //     JSON.stringify(admin.publicKey),
-    //   ),
-    // );
+    let maintainers = await program.account.maintainers.fetch(pdaMaintainers);
+    assert.equal(maintainers.admin.toString(), admin.publicKey.toString());
+    assert.isTrue(
+      JSON.stringify(maintainers.subAdmins).includes(
+        JSON.stringify(admin.publicKey),
+      ),
+    );
 
-    // let escrow = await program.account.escrowKey.fetch(pdaEscrow);
-    // assert.equal(escrow.key.toBase58(), vault.publicKey.toBase58());
+    let escrow = await program.account.escrowKey.fetch(pdaEscrow);
+    assert.equal(escrow.key.toBase58(), vault.publicKey.toBase58());
 
-    // let userData = await program.account.userData.fetch(pdaUsers);
-    // assert.equal(userData.users.length, 0);
+    let userData = await program.account.userData.fetch(pdaUsers);
+    assert.equal(userData.users.length, 0);
   });
 
-  // it("Test Receive", async () => {
-  //   let user1BalanceBefore = await provider.connection.getBalance(
-  //     user1.publicKey,
-  //   );
-  //   let escrowBalanceBefore = await provider.connection.getBalance(
-  //     vault.publicKey,
-  //   );
+  it("Test Receive", async () => {
+    let user1BalanceBefore = await provider.connection.getBalance(
+      user1.publicKey,
+    );
+    let escrowBalanceBefore = await provider.connection.getBalance(
+      vault.publicKey,
+    );
 
-  //   let userInfo = {
-  //     user: user1.publicKey,
-  //     amount: new BN(0.5 * LAMPORTS_PER_SOL),
-  //   };
+    let userInfo = {
+      user: user1.publicKey,
+      amount: new BN(0.5 * LAMPORTS_PER_SOL),
+    };
 
-  //   await receive(userInfo.amount, user1, vault.publicKey);
+    await receive(userInfo.amount, user1, vault.publicKey);
 
-  //   let user1BalanceAfter = await provider.connection.getBalance(
-  //     user1.publicKey,
-  //   );
-  //   let escrowBalanceAfter = await provider.connection.getBalance(
-  //     vault.publicKey,
-  //   );
+    let user1BalanceAfter = await provider.connection.getBalance(
+      user1.publicKey,
+    );
+    let escrowBalanceAfter = await provider.connection.getBalance(
+      vault.publicKey,
+    );
 
-  //   assert.equal(
-  //     Number(escrowBalanceAfter),
-  //     Number(escrowBalanceBefore) + Number(userInfo.amount),
-  //   );
+    assert.equal(
+      Number(escrowBalanceAfter),
+      Number(escrowBalanceBefore) + Number(userInfo.amount),
+    );
 
-  //   assert.equal(
-  //     Number(user1BalanceAfter),
-  //     Number(user1BalanceBefore) - Number(userInfo.amount),
-  //   );
+    assert.equal(
+      Number(user1BalanceAfter),
+      Number(user1BalanceBefore) - Number(userInfo.amount),
+    );
 
-  //   let userData = await program.account.userData.fetch(pdaUsers);
-  //   assert.equal(userData.users.length, 1);
-  //   assert.isTrue(
-  //     JSON.stringify(userData.users).includes(JSON.stringify(userInfo)),
-  //   );
-  // });
+    let userData = await program.account.userData.fetch(pdaUsers);
+    assert.equal(userData.users.length, 1);
+    assert.isTrue(
+      JSON.stringify(userData.users).includes(JSON.stringify(userInfo)),
+    );
+  });
 
-  // it("Test Receive for other than escrow account", async () => {
-  //   let userInfo = {
-  //     user: user1.publicKey,
-  //     amount: new BN(0.5 * LAMPORTS_PER_SOL),
-  //   };
+  it("Test Receive for other than escrow account", async () => {
+    let userInfo = {
+      user: user1.publicKey,
+      amount: new BN(0.5 * LAMPORTS_PER_SOL),
+    };
 
-  //   let userDataBefore = (await program.account.userData.fetch(pdaUsers)).users
-  //     .length;
+    let userDataBefore = (await program.account.userData.fetch(pdaUsers)).users
+      .length;
 
-  //   try {
-  //     await receive(userInfo.amount, user1, user2.publicKey);
-  //   } catch (err) {
-  //     assert.equal(err.error.errorCode.code, "UnknownReceiver");
-  //   }
+    try {
+      await receive(userInfo.amount, user1, user2.publicKey);
+    } catch (err) {
+      assert.equal(err.error.errorCode.code, "UnknownReceiver");
+    }
 
-  //   let userDataAfter = (await program.account.userData.fetch(pdaUsers)).users
-  //     .length;
-  //   assert.equal(userDataAfter, userDataBefore);
-  // });
+    let userDataAfter = (await program.account.userData.fetch(pdaUsers)).users
+      .length;
+    assert.equal(userDataAfter, userDataBefore);
+  });
 
-  // it("Test Update Escrow Account", async () => {
-  //   let escrow = await program.account.escrowKey.fetch(pdaEscrow);
-  //   assert.equal(escrow.key.toBase58(), vault.publicKey.toBase58());
+  it("Test Update Escrow Account", async () => {
+    let escrow = await program.account.escrowKey.fetch(pdaEscrow);
+    assert.equal(escrow.key.toBase58(), vault.publicKey.toBase58());
 
-  //   await setEscrow(user2.publicKey);
+    await setEscrow(user2.publicKey);
 
-  //   escrow = await program.account.escrowKey.fetch(pdaEscrow);
-  //   assert.equal(escrow.key.toBase58(), user2.publicKey.toBase58());
-  // });
+    escrow = await program.account.escrowKey.fetch(pdaEscrow);
+    assert.equal(escrow.key.toBase58(), user2.publicKey.toBase58());
+  });
 
-  // it("Test Receive After escrow update", async () => {
-  //   let payerBalanceBefore = await provider.connection.getBalance(
-  //     payer.publicKey,
-  //   );
-  //   let escrowBalanceBefore = await provider.connection.getBalance(
-  //     user2.publicKey,
-  //   );
+  it("Test Receive After escrow update", async () => {
+    let payerBalanceBefore = await provider.connection.getBalance(
+      payer.publicKey,
+    );
+    let escrowBalanceBefore = await provider.connection.getBalance(
+      user2.publicKey,
+    );
 
-  //   let userInfo = {
-  //     user: payer.publicKey,
-  //     amount: new BN(0.5 * LAMPORTS_PER_SOL),
-  //   };
+    let userInfo = {
+      user: payer.publicKey,
+      amount: new BN(0.5 * LAMPORTS_PER_SOL),
+    };
 
-  //   // Try with old escrow account
-  //   try {
-  //     await receive(userInfo.amount, payer, vault.publicKey);
-  //   } catch (err) {
-  //     assert.equal(err.error.errorCode.code, "UnknownReceiver");
-  //   }
+    // Try with old escrow account
+    try {
+      await receive(userInfo.amount, payer, vault.publicKey);
+    } catch (err) {
+      assert.equal(err.error.errorCode.code, "UnknownReceiver");
+    }
 
-  //   // Calling receive with new wallet
-  //   await receive(userInfo.amount, payer, user2.publicKey);
+    // Calling receive with new wallet
+    await receive(userInfo.amount, payer, user2.publicKey);
 
-  //   let payerBalanceAfter = await provider.connection.getBalance(
-  //     payer.publicKey,
-  //   );
-  //   let escrowBalanceAfter = await provider.connection.getBalance(
-  //     user2.publicKey,
-  //   );
+    let payerBalanceAfter = await provider.connection.getBalance(
+      payer.publicKey,
+    );
+    let escrowBalanceAfter = await provider.connection.getBalance(
+      user2.publicKey,
+    );
 
-  //   assert.equal(
-  //     Number(escrowBalanceAfter),
-  //     Number(escrowBalanceBefore) + Number(userInfo.amount),
-  //   );
+    assert.equal(
+      Number(escrowBalanceAfter),
+      Number(escrowBalanceBefore) + Number(userInfo.amount),
+    );
 
-  //   assert.isTrue(Number(payerBalanceAfter) < Number(payerBalanceBefore));
+    assert.isTrue(Number(payerBalanceAfter) < Number(payerBalanceBefore));
 
-  //   let userData = await program.account.userData.fetch(pdaUsers);
-  //   assert.equal(userData.users.length, 2);
-  //   assert.isTrue(
-  //     JSON.stringify(userData.users).includes(JSON.stringify(userInfo)),
-  //   );
-  // });
+    let userData = await program.account.userData.fetch(pdaUsers);
+    assert.equal(userData.users.length, 2);
+    assert.isTrue(
+      JSON.stringify(userData.users).includes(JSON.stringify(userInfo)),
+    );
+  });
 
-  // it("Test Update Admin", async () => {
-  //   let oldAdmin = (await program.account.maintainers.fetch(pdaMaintainers))
-  //     .admin;
-  //   assert.equal(oldAdmin.toString(), admin.publicKey.toString());
+  it("Test Update Admin", async () => {
+    let oldAdmin = (await program.account.maintainers.fetch(pdaMaintainers))
+      .admin;
+    assert.equal(oldAdmin.toString(), admin.publicKey.toString());
 
-  //   let updateAdmin = await program.methods
-  //     .manageAdmin(user1.publicKey)
-  //     .accounts({
-  //       maintainers: pdaMaintainers,
-  //       authority: admin.publicKey,
-  //     })
-  //     .signers([admin])
-  //     .rpc();
+    let updateAdmin = await program.methods
+      .manageAdmin(user1.publicKey)
+      .accounts({
+        maintainers: pdaMaintainers,
+        authority: admin.publicKey,
+      })
+      .signers([admin])
+      .rpc();
 
-  //   await confirmTransaction(updateAdmin);
+    await confirmTransaction(updateAdmin);
 
-  //   let newAdmin = (await program.account.maintainers.fetch(pdaMaintainers))
-  //     .admin;
-  //   assert.equal(newAdmin.toString(), user1.publicKey.toString());
+    let newAdmin = (await program.account.maintainers.fetch(pdaMaintainers))
+      .admin;
+    assert.equal(newAdmin.toString(), user1.publicKey.toString());
 
-  //   updateAdmin = await program.methods
-  //     .manageAdmin(admin.publicKey)
-  //     .accounts({
-  //       maintainers: pdaMaintainers,
-  //       authority: user1.publicKey,
-  //     })
-  //     .signers([user1])
-  //     .rpc();
+    updateAdmin = await program.methods
+      .manageAdmin(admin.publicKey)
+      .accounts({
+        maintainers: pdaMaintainers,
+        authority: user1.publicKey,
+      })
+      .signers([user1])
+      .rpc();
 
-  //   await confirmTransaction(updateAdmin);
-  //   newAdmin = (await program.account.maintainers.fetch(pdaMaintainers)).admin;
-  //   assert.equal(oldAdmin.toString(), admin.publicKey.toString());
-  // });
+    await confirmTransaction(updateAdmin);
+    newAdmin = (await program.account.maintainers.fetch(pdaMaintainers)).admin;
+    assert.equal(oldAdmin.toString(), admin.publicKey.toString());
+  });
 
-  // it("Test Add Sub Admins", async () => {
-  //   let addSubAdmins = await program.methods
-  //     .addSubAdminAccounts([user1.publicKey])
-  //     .accounts({
-  //       maintainers: pdaMaintainers,
-  //       authority: admin.publicKey,
-  //     })
-  //     .signers([admin])
-  //     .rpc();
+  it("Test Add Sub Admins", async () => {
+    let addSubAdmins = await program.methods
+      .addSubAdminAccounts([user1.publicKey])
+      .accounts({
+        maintainers: pdaMaintainers,
+        authority: admin.publicKey,
+      })
+      .signers([admin])
+      .rpc();
 
-  //   await confirmTransaction(addSubAdmins);
+    await confirmTransaction(addSubAdmins);
 
-  //   let maintainers = await program.account.maintainers.fetch(pdaMaintainers);
-  //   assert.isTrue(
-  //     JSON.stringify(maintainers.subAdmins).includes(
-  //       JSON.stringify(user1.publicKey),
-  //     ),
-  //   );
-  // });
+    let maintainers = await program.account.maintainers.fetch(pdaMaintainers);
+    assert.isTrue(
+      JSON.stringify(maintainers.subAdmins).includes(
+        JSON.stringify(user1.publicKey),
+      ),
+    );
+  });
 
-  // it("Test Remove Sub Admins", async () => {
-  //   let removeSubAdmins = await program.methods
-  //     .removeSubAdminAccounts([user1.publicKey])
-  //     .accounts({
-  //       maintainers: pdaMaintainers,
-  //       authority: admin.publicKey,
-  //     })
-  //     .signers([admin])
-  //     .rpc();
+  it("Test Remove Sub Admins", async () => {
+    let removeSubAdmins = await program.methods
+      .removeSubAdminAccounts([user1.publicKey])
+      .accounts({
+        maintainers: pdaMaintainers,
+        authority: admin.publicKey,
+      })
+      .signers([admin])
+      .rpc();
 
-  //   await confirmTransaction(removeSubAdmins);
+    await confirmTransaction(removeSubAdmins);
 
-  //   let maintainers = await program.account.maintainers.fetch(pdaMaintainers);
-  //   assert.isFalse(
-  //     JSON.stringify(maintainers.subAdmins).includes(
-  //       JSON.stringify(user1.publicKey),
-  //     ),
-  //   );
-  // });
+    let maintainers = await program.account.maintainers.fetch(pdaMaintainers);
+    assert.isFalse(
+      JSON.stringify(maintainers.subAdmins).includes(
+        JSON.stringify(user1.publicKey),
+      ),
+    );
+  });
 });

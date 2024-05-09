@@ -5,10 +5,7 @@ use super::*;
 /// This function can throw following errors:
 ///   - Amount Can't Be Zero (when user passes 0 amount for mint).
 pub fn receive_and_store(ctx: Context<Receiver>, amount: u64) -> Result<()> {
-    // Find bump for vault PDA
-    let (_, bump) = Pubkey::find_program_address(&[USER_DATA_TAG], &crate::ID);
-
-    let seeds = &[USER_DATA_TAG, &[bump]];
+    let seeds = &[USER_DATA_TAG, &[ctx.bumps.user_data]];
     let signer = [&seeds[..]];
 
     let cpi_program = ctx.accounts.system_program.to_account_info();

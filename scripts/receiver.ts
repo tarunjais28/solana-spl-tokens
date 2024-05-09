@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { getProvider, receiverProgramInterface } from "./solanaService";
+import { getProvider, receiverProgramID, receiverProgramInterface } from "./solanaService";
 import { Receiver } from "../target/types/receiver";
 import { Program } from "@project-serum/anchor";
 import { BN } from "bn.js";
@@ -11,6 +11,7 @@ const { provider }: any = getProvider();
 if (!provider) throw new Error("Provider not available");
 let program: any = new anchor.Program(
   receiverProgramInterface,
+  receiverProgramID,
   provider,
 ) as Program<Receiver>;
 
@@ -42,8 +43,9 @@ const addReceiverSubAdmins = async () => {
 };
 
 const initReceiverProgram = async () => {
+  let receiver = new PublicKey("8oxUFYpwHUiPMQtVkeDdyiKLSaHtdG78Gt6Um8fiRhPT");
   await program.methods
-    .init(AdminAddress)
+    .init(receiver)
     .accounts({
       maintainers: pdaMaintainers,
       escrowKey: pdaEscrow,

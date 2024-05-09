@@ -6,7 +6,7 @@ pub struct UserData {
     pub users: Vec<User>,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Clone)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub struct User {
     pub user: Pubkey,
     pub amount: u64,

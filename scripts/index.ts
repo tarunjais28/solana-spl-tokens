@@ -26,14 +26,14 @@ const callTheFunction = async () => {
   // await setEscrow();
   // await setConfig();
   // await initResources();
-  await mint();
+  // await mint();
   // await fetchBalances();
   // await buyWithSol();
   // await getBaseKeys();
   // await fetchContractBalances();
 
   // await initReceiverProgram();
-  // await getReceiverBaseKeys();
+  await getReceiverBaseKeys();
   // await receive();
 
   console.log("Functions Triggered, success !");

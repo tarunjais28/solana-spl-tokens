@@ -3,22 +3,23 @@ import * as anchor from "@project-serum/anchor";
 import { AnchorProvider } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import tokenProgramIDL from "../target/idl/token_program.json";
+// import tokenProgramIDL from "../target/idl/token_program.json";
 import receiverProgramIDL from "../target/idl/receiver.json";
-import { TOKEN_PROGRAM_ID } from "./constant";
+import { RECEIVER_PROGRAM_ID, TOKEN_PROGRAM_ID } from "./constant";
 import * as fs from "fs";
 
 export const tokenProgramID = new PublicKey(TOKEN_PROGRAM_ID);
+export const receiverProgramID = new PublicKey(RECEIVER_PROGRAM_ID);
 
-export const tokenProgramInterface = JSON.parse(
-  JSON.stringify(tokenProgramIDL),
-);
+// export const tokenProgramInterface = JSON.parse(
+//   JSON.stringify(tokenProgramIDL),
+// );
 
 export const receiverProgramInterface = JSON.parse(
   JSON.stringify(receiverProgramIDL),
 );
 
-const solanaNetwork = web3.clusterApiUrl("devnet");
+const solanaNetwork = web3.clusterApiUrl("mainnet-beta");
 const opts: any = {
   preflightCommitment: "processed",
 };
