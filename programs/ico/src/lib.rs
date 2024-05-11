@@ -5,7 +5,6 @@ use anchor_lang::{
     Lamports,
 };
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
-pub use structs::TokenParams;
 
 mod constants;
 mod enums;

@@ -13,18 +13,18 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) ->
     // Transfer sols
     let cpi_accounts = anchor_lang::system_program::Transfer {
         from: ctx.accounts.user.to_account_info(),
-        to: ctx.accounts.admin_account.to_account_info(),
+        to: ctx.accounts.receiver.to_account_info(),
     };
     anchor_lang::system_program::transfer(
         CpiContext::new_with_signer(cpi_program.clone(), cpi_accounts, &signer),
         params.sol_amount,
     )?;
 
-    // Create the Transfer struct for our context
+    // Sending royalty tokens from vault account to escrow account
     let mut cpi_accounts = TransferChecked {
-        to: ctx.accounts.vault_account.to_account_info(),
+        to: ctx.accounts.escrow_account.to_account_info(),
         authority: ctx.accounts.mint_account.to_account_info(),
-        from: ctx.accounts.escrow_account.to_account_info(),
+        from: ctx.accounts.vault_account.to_account_info(),
         mint: ctx.accounts.mint_account.to_account_info(),
     };
 
@@ -39,7 +39,7 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) ->
     } else {
         let royalty_amount = (royalty as u64) * token_amount / 100;
 
-        // Transfer tokens to escrow account
+        // Transfer tokens from vault account to escrow account
         token::transfer_checked(
             CpiContext::new_with_signer(cpi_program.clone(), cpi_accounts, &signer),
             royalty_amount,
@@ -49,14 +49,14 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) ->
         token_amount - royalty_amount
     };
 
+    // Transfer tokens from vault account to user account
     cpi_accounts = TransferChecked {
         mint: ctx.accounts.mint_account.to_account_info(),
         to: ctx.accounts.user_ata.to_account_info(),
         authority: ctx.accounts.mint_account.to_account_info(),
-        from: ctx.accounts.escrow_account.to_account_info(),
+        from: ctx.accounts.vault_account.to_account_info(),
     };
 
-    // Transfer tokens to escrow account
     token::transfer_checked(
         CpiContext::new_with_signer(cpi_program, cpi_accounts, &signer),
         transferrable_amount,
@@ -91,6 +91,7 @@ pub struct BuyWithSol<'info> {
     )]
     pub whitelist: Box<Account<'info, WhitelistedUser>>,
 
+    /// CHECK: Account that holds royalty tokens
     #[account(
         mut,
         seeds = [ESCROW_TAG],
@@ -98,6 +99,7 @@ pub struct BuyWithSol<'info> {
     )]
     pub escrow_account: Box<Account<'info, TokenAccount>>,
 
+    /// CHECK: Account that holds token supply for distribution
     #[account(
         mut,
         seeds = [VAULT_TAG],
@@ -105,13 +107,14 @@ pub struct BuyWithSol<'info> {
     )]
     pub vault_account: Box<Account<'info, TokenAccount>>,
 
-    /// CHECK: Escrow Account where the sols will be transferred
+    /// CHECK: Receiver account holding sols
     #[account(
         mut,
-        constraint = escrow_key.key == admin_account.key() @CustomError::UnknownReceiver
+        constraint = escrow_key.key == receiver.key() @CustomError::UnknownReceiver
     )]
-    pub admin_account: AccountInfo<'info>,
+    pub receiver: AccountInfo<'info>,
 
+    /// CHECK: Escrow key to validate valid sol receiver account
     #[account(
         seeds = [ESCROW_TAG],
         bump,

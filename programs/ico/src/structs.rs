@@ -1,35 +1,16 @@
 use super::*;
 
-/// The struct containing instructions for creating tokens
+/// The struct containing instructions for initialisation
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
-pub struct CreateTokenParams {
-    /// Token Name
-    pub name: String,
-
-    /// Symbol
-    pub symbol: String,
-
-    /// URI
-    pub uri: String,
-
-    /// Decimals
-    pub decimals: u8,
-
+pub struct InitParams {
     /// Royalty
     pub royalty: u8,
 
     /// Token to be distributed per Sol
     pub tokens_per_sol: u64,
-}
 
-/// The struct containing instructions for mint and burn tokens
-#[derive(AnchorSerialize, AnchorDeserialize)]
-pub struct TokenParams {
-    /// Token Name
-    pub name: String,
-
-    /// Amount of tokens to be minted.
-    pub amount: u64,
+    /// Whitelist accounts
+    pub whitelists: Vec<Pubkey>,
 }
 
 /// The struct containing instructions for transferring tokens

@@ -17,7 +17,7 @@ pub fn transfer(ctx: Context<TransferTokens>, params: TransferParams) -> Result<
     let seeds = &[CONFIG_TAG, params.token.as_bytes(), &[ctx.bumps.config]];
     let signer = [&seeds[..]];
 
-    // Create the Transfer struct for our context
+    // Sending royalty tokens from vault account to escrow account
     let mut cpi_accounts = TransferChecked {
         mint: ctx.accounts.mint_account.to_account_info(),
         to: ctx.accounts.escrow_account.to_account_info(),
@@ -40,7 +40,7 @@ pub fn transfer(ctx: Context<TransferTokens>, params: TransferParams) -> Result<
         params.amount - royalty_amount
     };
 
-    // Create the Transfer struct for our context
+    // Sending tokens from from_account to to_account
     cpi_accounts = TransferChecked {
         mint: ctx.accounts.mint_account.to_account_info(),
         to: ctx.accounts.to_account.to_account_info(),

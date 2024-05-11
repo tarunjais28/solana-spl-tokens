@@ -13,6 +13,9 @@ pub fn initialize(ctx: Context<Initialize>, params: InitParams) -> Result<()> {
     let whitelist = &mut ctx.accounts.whitelist;
     whitelist.save(params.whitelists);
 
+    let escrow = &mut ctx.accounts.escrow_key;
+    escrow.key = ctx.accounts.receiver.key();
+
     // transfer minimum rent to mint account
     update_account_lamports_to_minimum_balance(
         ctx.accounts.mint_account.to_account_info(),
@@ -59,6 +62,9 @@ pub struct Initialize<'info> {
         space = std::mem::size_of::<WhitelistedUser>() + (params.whitelists.len() * 32),
     )]
     pub whitelist: Box<Account<'info, WhitelistedUser>>,
+
+    /// CHECK: Receiver account
+    pub receiver: AccountInfo<'info>,
 
     #[account(
         init,

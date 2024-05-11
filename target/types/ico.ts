@@ -48,6 +48,11 @@ export type Ico = {
           "isSigner": false
         },
         {
+          "name": "receiver",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "escrowAccount",
           "isMut": true,
           "isSigner": false
@@ -285,7 +290,7 @@ export type Ico = {
           "isSigner": false
         },
         {
-          "name": "vaultAccount",
+          "name": "escrowAccount",
           "isMut": true,
           "isSigner": false
         },
@@ -411,7 +416,7 @@ export type Ico = {
           "isSigner": false
         },
         {
-          "name": "adminAccount",
+          "name": "receiver",
           "isMut": true,
           "isSigner": false
         },
@@ -554,6 +559,9 @@ export type Ico = {
   "types": [
     {
       "name": "InitParams",
+      "docs": [
+        "The struct containing instructions for initialisation"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
@@ -579,84 +587,6 @@ export type Ico = {
             "type": {
               "vec": "publicKey"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "CreateTokenParams",
-      "docs": [
-        "The struct containing instructions for creating tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "symbol",
-            "docs": [
-              "Symbol"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "uri",
-            "docs": [
-              "URI"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "decimals",
-            "docs": [
-              "Decimals"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "royalty",
-            "docs": [
-              "Royalty"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "tokensPerSol",
-            "docs": [
-              "Token to be distributed per Sol"
-            ],
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TokenParams",
-      "docs": [
-        "The struct containing instructions for mint and burn tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "amount",
-            "docs": [
-              "Amount of tokens to be minted."
-            ],
-            "type": "u64"
           }
         ]
       }
@@ -817,31 +747,6 @@ export type Ico = {
       ]
     },
     {
-      "name": "CreateTokenEvent",
-      "fields": [
-        {
-          "name": "name",
-          "type": "string",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "MintEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "amount",
-          "type": "u64",
-          "index": false
-        }
-      ]
-    },
-    {
       "name": "TransferEvent",
       "fields": [
         {
@@ -881,66 +786,6 @@ export type Ico = {
         },
         {
           "name": "tokenAmount",
-          "type": "u64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "InitResourcesEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "escrowAccount",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "vaultAccount",
-          "type": "publicKey",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "ForceTransferEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "from",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "to",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "amount",
-          "type": "u64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "BurnEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "amount",
           "type": "u64",
           "index": false
         }
@@ -1119,6 +964,11 @@ export const IDL: Ico = {
           "isSigner": false
         },
         {
+          "name": "receiver",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "escrowAccount",
           "isMut": true,
           "isSigner": false
@@ -1356,7 +1206,7 @@ export const IDL: Ico = {
           "isSigner": false
         },
         {
-          "name": "vaultAccount",
+          "name": "escrowAccount",
           "isMut": true,
           "isSigner": false
         },
@@ -1482,7 +1332,7 @@ export const IDL: Ico = {
           "isSigner": false
         },
         {
-          "name": "adminAccount",
+          "name": "receiver",
           "isMut": true,
           "isSigner": false
         },
@@ -1625,6 +1475,9 @@ export const IDL: Ico = {
   "types": [
     {
       "name": "InitParams",
+      "docs": [
+        "The struct containing instructions for initialisation"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
@@ -1650,84 +1503,6 @@ export const IDL: Ico = {
             "type": {
               "vec": "publicKey"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "CreateTokenParams",
-      "docs": [
-        "The struct containing instructions for creating tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "symbol",
-            "docs": [
-              "Symbol"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "uri",
-            "docs": [
-              "URI"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "decimals",
-            "docs": [
-              "Decimals"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "royalty",
-            "docs": [
-              "Royalty"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "tokensPerSol",
-            "docs": [
-              "Token to be distributed per Sol"
-            ],
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TokenParams",
-      "docs": [
-        "The struct containing instructions for mint and burn tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "amount",
-            "docs": [
-              "Amount of tokens to be minted."
-            ],
-            "type": "u64"
           }
         ]
       }
@@ -1888,31 +1663,6 @@ export const IDL: Ico = {
       ]
     },
     {
-      "name": "CreateTokenEvent",
-      "fields": [
-        {
-          "name": "name",
-          "type": "string",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "MintEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "amount",
-          "type": "u64",
-          "index": false
-        }
-      ]
-    },
-    {
       "name": "TransferEvent",
       "fields": [
         {
@@ -1952,66 +1702,6 @@ export const IDL: Ico = {
         },
         {
           "name": "tokenAmount",
-          "type": "u64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "InitResourcesEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "escrowAccount",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "vaultAccount",
-          "type": "publicKey",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "ForceTransferEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "from",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "to",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "amount",
-          "type": "u64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "BurnEvent",
-      "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
-          "name": "amount",
           "type": "u64",
           "index": false
         }
