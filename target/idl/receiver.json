@@ -283,8 +283,5 @@
       "name": "UnknownReceiver",
       "msg": "Error: Unknown Receiver!"
     }
-  ],
-  "metadata": {
-    "address": "A5nYM6ba7vZEsKijDtfKLVcfEG4S2Ec5kJ4AjAv5qSRK"
-  }
+  ]
 }
