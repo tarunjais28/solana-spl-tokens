@@ -122,4 +122,5 @@ export {
   receive,
   getReceiverBaseKeys,
   setEscrow,
+  fetchUsers,
 };

@@ -9,7 +9,7 @@ pub fn receive_and_store(ctx: Context<Receiver>, amount: u64) -> Result<()> {
     let signer = [&seeds[..]];
 
     let cpi_program = ctx.accounts.system_program.to_account_info();
-    
+
     // Transfer sols
     let cpi_accounts = anchor_lang::system_program::Transfer {
         from: ctx.accounts.user.to_account_info(),
