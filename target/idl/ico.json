@@ -343,10 +343,6 @@
       ],
       "args": [
         {
-          "name": "token",
-          "type": "string"
-        },
-        {
           "name": "royalty",
           "type": "u8"
         }
@@ -484,6 +480,28 @@
   ],
   "accounts": [
     {
+      "name": "Configuration",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "royalty",
+            "docs": [
+              "Royalty"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "tokensPerSol",
+            "docs": [
+              "Token to be distributed per Sol"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "Maintainers",
       "type": {
         "kind": "struct",
@@ -503,28 +521,6 @@
               "Admin"
             ],
             "type": "publicKey"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TokenConfiguration",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "royalty",
-            "docs": [
-              "Royalty"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "tokensPerSol",
-            "docs": [
-              "Token to be distributed per Sol"
-            ],
-            "type": "u64"
           }
         ]
       }

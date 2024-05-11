@@ -1,7 +1,7 @@
 use super::*;
 
 #[account]
-pub struct TokenConfiguration {
+pub struct Configuration {
     /// Royalty
     pub royalty: u8,
 

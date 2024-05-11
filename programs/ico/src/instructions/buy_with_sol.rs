@@ -83,7 +83,7 @@ pub struct BuyWithSol<'info> {
         seeds = [CONFIG_TAG],
         bump,
     )]
-    pub config: Box<Account<'info, TokenConfiguration>>,
+    pub config: Box<Account<'info, Configuration>>,
 
     #[account(
         seeds = [WHITELIST_TAG],

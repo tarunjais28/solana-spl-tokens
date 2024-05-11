@@ -49,9 +49,9 @@ pub struct Initialize<'info> {
         seeds = [CONFIG_TAG],
         bump,
         payer = authority,
-        space = std::mem::size_of::<TokenConfiguration>() + 8
+        space = std::mem::size_of::<Configuration>() + 8
     )]
-    pub config: Box<Account<'info, TokenConfiguration>>,
+    pub config: Box<Account<'info, Configuration>>,
 
     /// CHECK: Whitelist
     #[account(

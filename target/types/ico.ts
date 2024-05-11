@@ -343,10 +343,6 @@ export type Ico = {
       ],
       "args": [
         {
-          "name": "token",
-          "type": "string"
-        },
-        {
           "name": "royalty",
           "type": "u8"
         }
@@ -484,6 +480,28 @@ export type Ico = {
   ],
   "accounts": [
     {
+      "name": "configuration",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "royalty",
+            "docs": [
+              "Royalty"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "tokensPerSol",
+            "docs": [
+              "Token to be distributed per Sol"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "maintainers",
       "type": {
         "kind": "struct",
@@ -503,28 +521,6 @@ export type Ico = {
               "Admin"
             ],
             "type": "publicKey"
-          }
-        ]
-      }
-    },
-    {
-      "name": "tokenConfiguration",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "royalty",
-            "docs": [
-              "Royalty"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "tokensPerSol",
-            "docs": [
-              "Token to be distributed per Sol"
-            ],
-            "type": "u64"
           }
         ]
       }
@@ -1259,10 +1255,6 @@ export const IDL: Ico = {
       ],
       "args": [
         {
-          "name": "token",
-          "type": "string"
-        },
-        {
           "name": "royalty",
           "type": "u8"
         }
@@ -1400,6 +1392,28 @@ export const IDL: Ico = {
   ],
   "accounts": [
     {
+      "name": "configuration",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "royalty",
+            "docs": [
+              "Royalty"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "tokensPerSol",
+            "docs": [
+              "Token to be distributed per Sol"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "maintainers",
       "type": {
         "kind": "struct",
@@ -1419,28 +1433,6 @@ export const IDL: Ico = {
               "Admin"
             ],
             "type": "publicKey"
-          }
-        ]
-      }
-    },
-    {
-      "name": "tokenConfiguration",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "royalty",
-            "docs": [
-              "Royalty"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "tokensPerSol",
-            "docs": [
-              "Token to be distributed per Sol"
-            ],
-            "type": "u64"
           }
         ]
       }

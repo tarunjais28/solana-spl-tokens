@@ -81,7 +81,7 @@ pub struct TransferTokens<'info> {
         seeds = [CONFIG_TAG, params.token.as_bytes()],
         bump,
     )]
-    pub config: Box<Account<'info, TokenConfiguration>>,
+    pub config: Box<Account<'info, Configuration>>,
 
     #[account(
         mut,

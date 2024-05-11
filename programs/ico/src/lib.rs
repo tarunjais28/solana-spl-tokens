@@ -59,15 +59,14 @@ pub mod ico {
     }
 
     pub fn update_royalty(
-        ctx: Context<UpdateTokenConfig>,
-        token: String,
+        ctx: Context<UpdateConfig>,
         royalty: u8,
     ) -> Result<()> {
-        instructions::update_royalty_percentage(ctx, token, royalty)
+        instructions::update_royalty_percentage(ctx, royalty)
     }
 
     pub fn update_tokens_per_sol(
-        ctx: Context<UpdateTokenConfig>,
+        ctx: Context<UpdateConfig>,
         token: String,
         tokens_per_sol: u64,
     ) -> Result<()> {

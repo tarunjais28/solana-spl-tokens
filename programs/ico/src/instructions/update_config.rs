@@ -2,8 +2,7 @@ use super::*;
 
 /// Function to update royalty
 pub fn update_royalty_percentage(
-    ctx: Context<UpdateTokenConfig>,
-    _: String,
+    ctx: Context<UpdateConfig>,
     royalty: u8,
 ) -> Result<()> {
     let caller = ctx.accounts.caller.to_account_info().key();
@@ -26,7 +25,7 @@ pub fn update_royalty_percentage(
 
 /// Function to update tokens per sol
 pub fn update_token_per_sol(
-    ctx: Context<UpdateTokenConfig>,
+    ctx: Context<UpdateConfig>,
     _: String,
     tokens_per_sol: u64,
 ) -> Result<()> {
@@ -49,8 +48,8 @@ pub fn update_token_per_sol(
 }
 
 #[derive(Accounts)]
-#[instruction(token: String)]
-pub struct UpdateTokenConfig<'info> {
+#[instruction()]
+pub struct UpdateConfig<'info> {
     #[account(
         seeds = [MAINTAINERS_TAG],
         bump,
@@ -59,10 +58,10 @@ pub struct UpdateTokenConfig<'info> {
 
     #[account(
         mut,
-        seeds = [CONFIG_TAG, token.as_bytes()],
+        seeds = [CONFIG_TAG],
         bump,
     )]
-    pub config: Box<Account<'info, TokenConfiguration>>,
+    pub config: Box<Account<'info, Configuration>>,
 
     /// CHECK: The caller
     #[account(mut)]

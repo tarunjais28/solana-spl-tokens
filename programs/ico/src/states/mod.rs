@@ -1,7 +1,7 @@
 use super::*;
 
 mod maintainers;
-mod token_configuration;
+mod config;
 mod whitelist;
 
-pub use {maintainers::*, token_configuration::*, whitelist::*};
+pub use {maintainers::*, config::*, whitelist::*};
