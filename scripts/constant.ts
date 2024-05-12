@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 
 export const ICO_PROGRAM_ID: string =
-  "CCazZm7etsEJ8ncqG9PnWPLg4wgaHBgtQwD1GAPsboxt";
+  "EpVxtDLVHNtLHH1aXgSsCAHs6JAcAz2DwfESLEpiqpKo";
 
 export const RECEIVER_PROGRAM_ID: string =
   "A5nYM6ba7vZEsKijDtfKLVcfEG4S2Ec5kJ4AjAv5qSRK";

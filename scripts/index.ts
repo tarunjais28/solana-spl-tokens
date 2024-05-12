@@ -1,16 +1,14 @@
 import {
   addSubAdmins,
   fetchMaintainers,
-  initTokenProgram,
-  createToken,
-  mint,
   fetchBalances,
   buyWithSol,
-  getBaseKeys,
-  initResources,
+  getIcoBaseKeys,
   fetchContractBalances,
   setConfig,
   setEscrow,
+  initIcoProgram,
+  initIcoResources,
 } from "./ico";
 
 import {
@@ -24,23 +22,23 @@ const callTheFunction = async () => {
   console.log("Triggering functions , please wait !");
   // ==============================================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-  // await initTokenProgram();
+  // await initIcoProgram();
+  // await initIcoResources();
   // await fetchMaintainers();
   // await addSubAdmins();
   // await createToken();
   // await setEscrow();
   // await setConfig();
-  // await initResources();
   // await mint();
   // await fetchBalances();
-  // await buyWithSol();
-  // await getBaseKeys();
+  await buyWithSol();
+  // await getIcoBaseKeys();
   // await fetchContractBalances();
 
   // await initReceiverProgram();
   // await getReceiverBaseKeys();
   // await receive();
-  await fetchUsers();
+  // await fetchUsers();
 
   console.log("Functions Triggered, success !");
   console.log("sent =>>>>>>>>");

@@ -1,10 +1,14 @@
 import * as anchor from "@project-serum/anchor";
-import { getProvider, icoProgramInterface } from "./solanaService";
+import {
+  getProvider,
+  icoProgramID,
+  icoProgramInterface,
+} from "./solanaService";
 import { Ico } from "../target/types/ico";
 import { Program } from "@project-serum/anchor";
 import { BN } from "bn.js";
 import {
-  TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
   getAccount,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
@@ -13,7 +17,6 @@ import {
   AdminAddress,
   MAINTAINERS,
   CONFIG,
-  MINT,
   WHITELIST,
   ESCROW,
   VAULT,
@@ -26,6 +29,7 @@ const { provider }: any = getProvider();
 if (!provider) throw new Error("Provider not available");
 let program: any = new anchor.Program(
   icoProgramInterface,
+  icoProgramID,
   provider,
 ) as Program<Ico>;
 
@@ -59,11 +63,21 @@ const [pdaConfig] = anchor.web3.PublicKey.findProgramAddressSync(
   program.programId,
 );
 
+const charity = new PublicKey("GNnmzRpoMrHVNwKSZnPNhp4gMT57GseWDGQD2iYvqSBP");
+const owner = new PublicKey("C2EgnSismtrSa1mBGmLBpRkemLgZPc5myS5H2AqGKKQE");
+const marketing = new PublicKey("4Z2MHbzdpsv5hRrttuoqg7ATPjYX68oSfafWSxx9Yy2Z");
+const receiver = new PublicKey("8oxUFYpwHUiPMQtVkeDdyiKLSaHtdG78Gt6Um8fiRhPT");
+const ownership = new PublicKey("EHtEt4rTCBexBZz3DWk8Y2znvAoazdqUtQBr8b5NqdfG");
+// const mintAccount = new PublicKey(
+//   "BXY5wG24dGEKacDPTgN6GfsgdWAhEBvnwKKdnk1JAUan",
+// );
+const mintAccount = new PublicKey(
+  "5vF3FnUWtgfeCupdMDCRBbZYR9tHcAdQDPBNJk3BU2Kr",
+);
+
 const addSubAdmins = async () => {
   await program.methods
-    .addSubAdminAccounts([
-      new PublicKey("ArZEdFt7rq9Eoc1T4DoppEYh9vrdBHgLATxsFKRytfxr"),
-    ])
+    .addSubAdminAccounts([ownership])
     .accounts({
       maintainers: pdaMaintainers,
       authority: AdminAddress,
@@ -72,14 +86,41 @@ const addSubAdmins = async () => {
 };
 
 const initIcoProgram = async () => {
+  let initParams = {
+    royalty: 1,
+    tokensPerSol: new BN(150),
+    whitelists: [charity, owner, marketing, receiver, ownership],
+  };
+
+  // Test initialize instruction
   await program.methods
-    .init([])
+    .init(initParams)
     .accounts({
       maintainers: pdaMaintainers,
+      config: pdaConfig,
       whitelist: pdaWhitelist,
+      vaultAccount: pdaVault,
+      escrowKey: pdaEscrowKey,
+      escrowAccount: pdaEscrow,
+      receiver,
+      mintAccount,
       authority: AdminAddress,
       systemProgram: anchor.web3.SystemProgram.programId,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .rpc();
+};
+
+const initIcoResources = async () => {
+  await program.methods
+    .initResourceAccounts()
+    .accounts({
+      vaultAccount: pdaVault,
+      escrowAccount: pdaEscrow,
+      mintAccount,
+      authority: AdminAddress,
+      systemProgram: anchor.web3.SystemProgram.programId,
+      tokenProgram: TOKEN_PROGRAM_ID,
     })
     .rpc();
 };
@@ -100,47 +141,29 @@ const setConfig = async () => {
       maintainers: pdaMaintainers,
       config: pdaConfig,
       caller: AdminAddress,
-      systemProgram: anchor.web3.SystemProgram.programId,
     })
     .rpc();
 };
 
-const getBaseKeys = async () => {
-  console.log("mint", mintAccount.toString());
+const getIcoBaseKeys = async () => {
   console.log("config", pdaConfig.toString());
   console.log("maintainers", pdaMaintainers.toString());
   console.log("pdaWhitelist", pdaWhitelist.toString());
   console.log("pdaEscrow", pdaEscrow.toString());
   console.log("pdaEscrowKey", pdaEscrowKey.toString());
   console.log("pdaVault", pdaVault.toString());
-
-  // let supply = await provider.connection.getTokenSupply(mintAccount);
-  // console.log(Number(supply.value.amount));
 };
 
 const fetchBalances = async () => {
-  let user = new PublicKey("ArZEdFt7rq9Eoc1T4DoppEYh9vrdBHgLATxsFKRytfxr");
-  let userATA = await getAssociatedTokenAddress(
-    mintAccount,
-    user,
-    undefined,
-    TOKEN_2022_PROGRAM_ID,
-  );
-  console.log("user: ", user.toString());
+  let userATA = await getAssociatedTokenAddress(mintAccount, AdminAddress);
+  console.log("user: ", AdminAddress.toString());
   console.log("ata: ", userATA.toString());
 
   let supply = (await provider.connection.getTokenSupply(mintAccount)).value
     .amount;
 
   let userAccountBalance = Number(
-    (
-      await getAccount(
-        provider.connection,
-        userATA,
-        undefined,
-        TOKEN_2022_PROGRAM_ID,
-      )
-    ).amount,
+    (await getAccount(provider.connection, userATA)).amount,
   );
 
   console.log("supply: ", supply);
@@ -148,23 +171,9 @@ const fetchBalances = async () => {
 };
 
 const fetchContractBalances = async () => {
-  let escrowBalance = (
-    await getAccount(
-      provider.connection,
-      pdaEscrow,
-      undefined,
-      TOKEN_2022_PROGRAM_ID,
-    )
-  ).amount;
+  let escrowBalance = (await getAccount(provider.connection, pdaEscrow)).amount;
 
-  let vaultBalance = (
-    await getAccount(
-      provider.connection,
-      pdaVault,
-      undefined,
-      TOKEN_2022_PROGRAM_ID,
-    )
-  ).amount;
+  let vaultBalance = (await getAccount(provider.connection, pdaVault)).amount;
 
   console.log("escrow balance: ", escrowBalance);
   console.log("vault balance: ", vaultBalance);
@@ -187,46 +196,6 @@ const setEscrow = async () => {
       maintainers: pdaMaintainers,
       escrowKey: pdaEscrowKey,
       authority: AdminAddress,
-      SystemProgram: anchor.web3.SystemProgram.programId,
-    })
-    .rpc();
-};
-
-const mint = async () => {
-  // let user = new PublicKey("ArZEdFt7rq9Eoc1T4DoppEYh9vrdBHgLATxsFKRytfxr");
-
-  let tokenParams = {
-    name: TEST_TOKEN,
-    amount: new BN((1000000 * LAMPORTS_PER_SOL * 40) / 100),
-  };
-
-  const rawPayerKeypair = JSON.parse(
-    fs.readFileSync("/home/tarunjais/.config/solana/id.json", "utf-8"),
-  );
-  const adminKey = anchor.web3.Keypair.fromSecretKey(
-    Buffer.from(rawPayerKeypair),
-  );
-
-  // Creating associated token for user for Test
-  let userATA = await getOrCreateAssociatedTokenAccount(
-    provider.connection,
-    adminKey,
-    mintAccount,
-    AdminAddress,
-    undefined,
-    undefined,
-    undefined,
-    TOKEN_2022_PROGRAM_ID,
-  );
-
-  await program.methods
-    .mintToken(tokenParams)
-    .accounts({
-      maintainers: pdaMaintainers,
-      mintAccount,
-      toAccount: userATA.address,
-      authority: AdminAddress,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
     })
     .rpc();
 };
@@ -247,26 +216,12 @@ const buyWithSol = async () => {
     adminKey,
     mintAccount,
     AdminAddress,
-    undefined,
-    undefined,
-    undefined,
-    TOKEN_2022_PROGRAM_ID,
   );
 
-  let vaultAta = await getAssociatedTokenAddress(
-    mintAccount,
-    user,
-    undefined,
-    TOKEN_2022_PROGRAM_ID,
-  );
-
-  let buyWithSolParams = {
-    token: TEST_TOKEN,
-    solAmount: new BN(1 * LAMPORTS_PER_SOL),
-  };
+  let solAmount = new BN(LAMPORTS_PER_SOL);
 
   await program.methods
-    .buyWithSol(buyWithSolParams)
+    .buyWithSol(solAmount)
     .accounts({
       mintAccount,
       config: pdaConfig,
@@ -274,10 +229,10 @@ const buyWithSol = async () => {
       whitelist: pdaWhitelist,
       escrowAccount: pdaEscrow,
       escrowKey: pdaEscrowKey,
-      adminAccount: AdminAddress,
-      vaultAccount: pdaVault,
+      receiver,
       userAta: userATA.address,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
+      vaultAccount: pdaVault,
+      tokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: anchor.web3.SystemProgram.programId,
     })
     .rpc();
@@ -288,13 +243,11 @@ export {
   updateTokenProgramAdmin,
   initIcoProgram,
   addSubAdmins,
-  createToken,
-  initResources,
-  mint,
   fetchBalances,
   buyWithSol,
-  getBaseKeys,
+  getIcoBaseKeys,
   fetchContractBalances,
   setConfig,
   setEscrow,
+  initIcoResources,
 };
