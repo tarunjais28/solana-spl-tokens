@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
-import { getProvider, tokenProgramInterface } from "./solanaService";
-import { TokenProgram } from "../target/types/token_program";
+import { getProvider, icoProgramInterface } from "./solanaService";
+import { Ico } from "../target/types/ico";
 import { Program } from "@project-serum/anchor";
 import { BN } from "bn.js";
 import {
@@ -13,12 +13,11 @@ import {
   AdminAddress,
   MAINTAINERS,
   CONFIG,
-  TEST,
-  TEST_TOKEN,
   MINT,
   WHITELIST,
   ESCROW,
   VAULT,
+  ESCROW_KEY,
 } from "./constant";
 import * as fs from "fs";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
@@ -26,22 +25,27 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 const { provider }: any = getProvider();
 if (!provider) throw new Error("Provider not available");
 let program: any = new anchor.Program(
-  tokenProgramInterface,
+  icoProgramInterface,
   provider,
-) as Program<TokenProgram>;
+) as Program<Ico>;
 
 const [pdaMaintainers] = anchor.web3.PublicKey.findProgramAddressSync(
   [MAINTAINERS],
   program.programId,
 );
 
-const [pdaConfig] = anchor.web3.PublicKey.findProgramAddressSync(
-  [CONFIG, TEST],
+const [pdaEscrow] = anchor.web3.PublicKey.findProgramAddressSync(
+  [ESCROW],
   program.programId,
 );
 
-const [mintAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-  [MINT, TEST],
+const [pdaEscrowKey] = anchor.web3.PublicKey.findProgramAddressSync(
+  [ESCROW_KEY],
+  program.programId,
+);
+
+const [pdaVault] = anchor.web3.PublicKey.findProgramAddressSync(
+  [VAULT],
   program.programId,
 );
 
@@ -50,18 +54,8 @@ const [pdaWhitelist] = anchor.web3.PublicKey.findProgramAddressSync(
   program.programId,
 );
 
-const [pdaEscrow] = anchor.web3.PublicKey.findProgramAddressSync(
-  [ESCROW, TEST],
-  program.programId,
-);
-
-const [pdaEscrowKey] = anchor.web3.PublicKey.findProgramAddressSync(
-  [ESCROW],
-  program.programId,
-);
-
-const [pdaVault] = anchor.web3.PublicKey.findProgramAddressSync(
-  [VAULT, TEST],
+const [pdaConfig] = anchor.web3.PublicKey.findProgramAddressSync(
+  [CONFIG],
   program.programId,
 );
 
@@ -77,7 +71,7 @@ const addSubAdmins = async () => {
     .rpc();
 };
 
-const initTokenProgram = async () => {
+const initIcoProgram = async () => {
   await program.methods
     .init([])
     .accounts({
@@ -96,52 +90,16 @@ const fetchMaintainers = async () => {
   console.log(maintainers.subAdmins.toString());
 };
 
-const createToken = async () => {
-  let createTokenParams = {
-    name: TEST_TOKEN,
-    symbol: "mdpnd",
-    uri: "https://arweave.net/dEGah51x5Dlvbfcl8UUGz52KovgWh6QmrYIW48hi244?ext=png",
-    decimals: 9,
-    royalty: 1,
-    tokensPerSol: new BN(150),
-  };
-
-  await program.methods
-    .create(createTokenParams)
-    .accounts({
-      maintainers: pdaMaintainers,
-      mintAccount,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-      payer: AdminAddress,
-      systemProgram: anchor.web3.SystemProgram.programId,
-    })
-    .rpc();
-};
-
 const setConfig = async () => {
   let royalty = 1;
   let tokensPerSol = new BN(150);
 
   await program.methods
-    .setConfig(TEST, royalty, tokensPerSol)
+    .setConfig(royalty, tokensPerSol)
     .accounts({
       maintainers: pdaMaintainers,
       config: pdaConfig,
       caller: AdminAddress,
-      systemProgram: anchor.web3.SystemProgram.programId,
-    })
-    .rpc();
-};
-
-const initResources = async () => {
-  await program.methods
-    .initResources(TEST_TOKEN)
-    .accounts({
-      mintAccount,
-      escrowAccount: pdaEscrow,
-      vaultAccount: pdaVault,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-      payer: AdminAddress,
       systemProgram: anchor.web3.SystemProgram.programId,
     })
     .rpc();
@@ -328,7 +286,7 @@ const buyWithSol = async () => {
 export {
   fetchMaintainers,
   updateTokenProgramAdmin,
-  initTokenProgram,
+  initIcoProgram,
   addSubAdmins,
   createToken,
   initResources,

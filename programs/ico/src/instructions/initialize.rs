@@ -88,7 +88,7 @@ pub struct Initialize<'info> {
 
     #[account(
         init,
-        seeds = [ESCROW_TAG],
+        seeds = [ESCROW_KEY_TAG],
         bump,
         payer = authority,
         space = std::mem::size_of::<EscrowKey>() + 32

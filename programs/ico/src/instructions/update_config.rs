@@ -26,7 +26,6 @@ pub fn update_royalty_percentage(
 /// Function to update tokens per sol
 pub fn update_token_per_sol(
     ctx: Context<UpdateConfig>,
-    _: String,
     tokens_per_sol: u64,
 ) -> Result<()> {
     let caller = ctx.accounts.caller.to_account_info().key();
@@ -66,6 +65,4 @@ pub struct UpdateConfig<'info> {
     /// CHECK: The caller
     #[account(mut)]
     pub caller: Signer<'info>,
-
-    pub system_program: Program<'info, System>,
 }

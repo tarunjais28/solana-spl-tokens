@@ -4,8 +4,8 @@ use super::*;
 ///
 /// This function can throw following errors:
 ///   - Amount Can't Be Zero (when user passes 0 amount for mint).
-pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) -> Result<()> {
-    let seeds = &[CONFIG_TAG, params.token.as_bytes(), &[ctx.bumps.config]];
+pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, sol_amount: u64) -> Result<()> {
+    let seeds = &[CONFIG_TAG, &[ctx.bumps.config]];
     let signer = [&seeds[..]];
 
     let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -17,7 +17,7 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) ->
     };
     anchor_lang::system_program::transfer(
         CpiContext::new_with_signer(cpi_program.clone(), cpi_accounts, &signer),
-        params.sol_amount,
+        sol_amount,
     )?;
 
     // Sending royalty tokens from vault account to escrow account
@@ -31,7 +31,7 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) ->
     let tokens_per_sol = ctx.accounts.config.tokens_per_sol;
     let user = ctx.accounts.user.key();
     let royalty = ctx.accounts.config.royalty;
-    let token_amount = params.sol_amount * tokens_per_sol;
+    let token_amount = sol_amount * tokens_per_sol;
     let whitelist = &mut ctx.accounts.whitelist;
 
     let transferrable_amount = if whitelist.users.contains(&user) {
@@ -65,8 +65,7 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) ->
 
     // Emit buy with sol event
     emit!(BuyWithSolEvent {
-        token: params.token,
-        sol_amount: params.sol_amount,
+        sol_amount: sol_amount,
         token_amount
     });
 
@@ -74,7 +73,7 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) ->
 }
 
 #[derive(Accounts)]
-#[instruction(params: BuyWithSolParams)]
+#[instruction()]
 pub struct BuyWithSol<'info> {
     #[account(mut)]
     pub mint_account: Box<Account<'info, Mint>>,
@@ -116,7 +115,7 @@ pub struct BuyWithSol<'info> {
 
     /// CHECK: Escrow key to validate valid sol receiver account
     #[account(
-        seeds = [ESCROW_TAG],
+        seeds = [ESCROW_KEY_TAG],
         bump,
     )]
     pub escrow_key: Box<Account<'info, EscrowKey>>,

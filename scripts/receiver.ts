@@ -1,5 +1,9 @@
 import * as anchor from "@project-serum/anchor";
-import { getProvider, receiverProgramID, receiverProgramInterface } from "./solanaService";
+import {
+  getProvider,
+  receiverProgramID,
+  receiverProgramInterface,
+} from "./solanaService";
 import { Receiver } from "../target/types/receiver";
 import { Program } from "@project-serum/anchor";
 import { BN } from "bn.js";

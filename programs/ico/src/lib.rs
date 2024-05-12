@@ -54,8 +54,8 @@ pub mod ico {
         instructions::transfer(ctx, params)
     }
 
-    pub fn claim(ctx: Context<ClaimTokens>, token: String) -> Result<()> {
-        instructions::claim_royalty(ctx, token)
+    pub fn claim(ctx: Context<ClaimTokens>) -> Result<()> {
+        instructions::claim_royalty(ctx)
     }
 
     pub fn update_royalty(
@@ -67,14 +67,13 @@ pub mod ico {
 
     pub fn update_tokens_per_sol(
         ctx: Context<UpdateConfig>,
-        token: String,
         tokens_per_sol: u64,
     ) -> Result<()> {
-        instructions::update_token_per_sol(ctx, token, tokens_per_sol)
+        instructions::update_token_per_sol(ctx, tokens_per_sol)
     }
 
-    pub fn buy_with_sol(ctx: Context<BuyWithSol>, params: BuyWithSolParams) -> Result<()> {
-        instructions::buy_token_with_sol(ctx, params)
+    pub fn buy_with_sol(ctx: Context<BuyWithSol>, sol_amount: u64) -> Result<()> {
+        instructions::buy_token_with_sol(ctx, sol_amount)
     }
 
     pub fn update_escrow(ctx: Context<SetEscrow>, address: Pubkey) -> Result<()> {

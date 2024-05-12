@@ -8,7 +8,6 @@ pub struct InitEvent {
 
 #[event]
 pub struct TransferEvent {
-    pub token: String,
     pub from: Pubkey,
     pub to: Pubkey,
     pub amount: u64,
@@ -16,7 +15,6 @@ pub struct TransferEvent {
 
 #[event]
 pub struct BuyWithSolEvent {
-    pub token: String,
     pub sol_amount: u64,
     pub token_amount: u64,
 }
@@ -41,7 +39,6 @@ pub struct UpdateSubAdminsEvent {
 
 #[event]
 pub struct SetConfigEvent {
-    pub token: String,
     pub royalty: u8,
     pub tokens_per_sol: u64,
 }

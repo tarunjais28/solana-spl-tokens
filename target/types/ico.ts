@@ -23,6 +23,11 @@ export type Ico = {
       "value": "[101, 115, 99, 114, 111, 119]"
     },
     {
+      "name": "ESCROW_KEY_TAG",
+      "type": "bytes",
+      "value": "[101, 115, 99, 114, 111, 119, 95, 107, 101, 121]"
+    },
+    {
       "name": "VAULT_TAG",
       "type": "bytes",
       "value": "[118, 97, 117, 108, 116]"
@@ -310,12 +315,7 @@ export type Ico = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "token",
-          "type": "string"
-        }
-      ]
+      "args": []
     },
     {
       "name": "updateRoyalty",
@@ -334,11 +334,6 @@ export type Ico = {
           "name": "caller",
           "isMut": true,
           "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
@@ -365,18 +360,9 @@ export type Ico = {
           "name": "caller",
           "isMut": true,
           "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
-        {
-          "name": "token",
-          "type": "string"
-        },
         {
           "name": "tokensPerSol",
           "type": "u64"
@@ -444,10 +430,8 @@ export type Ico = {
       ],
       "args": [
         {
-          "name": "params",
-          "type": {
-            "defined": "BuyWithSolParams"
-          }
+          "name": "solAmount",
+          "type": "u64"
         }
       ]
     },
@@ -596,55 +580,9 @@ export type Ico = {
         "kind": "struct",
         "fields": [
           {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
             "name": "toAccount",
             "docs": [
               "To Token"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "amount",
-            "docs": [
-              "Amount of tokens to be transferred"
-            ],
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "ForceTransferParams",
-      "docs": [
-        "The struct containing instructions for force transferring tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "fromAccount",
-            "docs": [
-              "From Account"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "toAccount",
-            "docs": [
-              "To Account"
             ],
             "type": "publicKey"
           },
@@ -667,43 +605,11 @@ export type Ico = {
         "kind": "struct",
         "fields": [
           {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
             "name": "user",
             "docs": [
               "User to be whitelisted"
             ],
             "type": "publicKey"
-          }
-        ]
-      }
-    },
-    {
-      "name": "BuyWithSolParams",
-      "docs": [
-        "The struct containing instructions for transferring tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "solAmount",
-            "docs": [
-              "Sol Amount"
-            ],
-            "type": "u64"
           }
         ]
       }
@@ -746,11 +652,6 @@ export type Ico = {
       "name": "TransferEvent",
       "fields": [
         {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
           "name": "from",
           "type": "publicKey",
           "index": false
@@ -770,11 +671,6 @@ export type Ico = {
     {
       "name": "BuyWithSolEvent",
       "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
         {
           "name": "solAmount",
           "type": "u64",
@@ -843,11 +739,6 @@ export type Ico = {
     {
       "name": "SetConfigEvent",
       "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
         {
           "name": "royalty",
           "type": "u8",
@@ -935,6 +826,11 @@ export const IDL: Ico = {
       "value": "[101, 115, 99, 114, 111, 119]"
     },
     {
+      "name": "ESCROW_KEY_TAG",
+      "type": "bytes",
+      "value": "[101, 115, 99, 114, 111, 119, 95, 107, 101, 121]"
+    },
+    {
       "name": "VAULT_TAG",
       "type": "bytes",
       "value": "[118, 97, 117, 108, 116]"
@@ -1222,12 +1118,7 @@ export const IDL: Ico = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "token",
-          "type": "string"
-        }
-      ]
+      "args": []
     },
     {
       "name": "updateRoyalty",
@@ -1246,11 +1137,6 @@ export const IDL: Ico = {
           "name": "caller",
           "isMut": true,
           "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
@@ -1277,18 +1163,9 @@ export const IDL: Ico = {
           "name": "caller",
           "isMut": true,
           "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
-        {
-          "name": "token",
-          "type": "string"
-        },
         {
           "name": "tokensPerSol",
           "type": "u64"
@@ -1356,10 +1233,8 @@ export const IDL: Ico = {
       ],
       "args": [
         {
-          "name": "params",
-          "type": {
-            "defined": "BuyWithSolParams"
-          }
+          "name": "solAmount",
+          "type": "u64"
         }
       ]
     },
@@ -1508,55 +1383,9 @@ export const IDL: Ico = {
         "kind": "struct",
         "fields": [
           {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
             "name": "toAccount",
             "docs": [
               "To Token"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "amount",
-            "docs": [
-              "Amount of tokens to be transferred"
-            ],
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "ForceTransferParams",
-      "docs": [
-        "The struct containing instructions for force transferring tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "fromAccount",
-            "docs": [
-              "From Account"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "toAccount",
-            "docs": [
-              "To Account"
             ],
             "type": "publicKey"
           },
@@ -1579,43 +1408,11 @@ export const IDL: Ico = {
         "kind": "struct",
         "fields": [
           {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
             "name": "user",
             "docs": [
               "User to be whitelisted"
             ],
             "type": "publicKey"
-          }
-        ]
-      }
-    },
-    {
-      "name": "BuyWithSolParams",
-      "docs": [
-        "The struct containing instructions for transferring tokens"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "token",
-            "docs": [
-              "Token Name"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "solAmount",
-            "docs": [
-              "Sol Amount"
-            ],
-            "type": "u64"
           }
         ]
       }
@@ -1658,11 +1455,6 @@ export const IDL: Ico = {
       "name": "TransferEvent",
       "fields": [
         {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
-        {
           "name": "from",
           "type": "publicKey",
           "index": false
@@ -1682,11 +1474,6 @@ export const IDL: Ico = {
     {
       "name": "BuyWithSolEvent",
       "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
         {
           "name": "solAmount",
           "type": "u64",
@@ -1755,11 +1542,6 @@ export const IDL: Ico = {
     {
       "name": "SetConfigEvent",
       "fields": [
-        {
-          "name": "token",
-          "type": "string",
-          "index": false
-        },
         {
           "name": "royalty",
           "type": "u8",

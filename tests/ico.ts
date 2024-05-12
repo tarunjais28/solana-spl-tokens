@@ -10,10 +10,9 @@ import {
 } from "@solana/spl-token";
 import { BN } from "bn.js";
 import { assert } from "chai";
-import { Ico } from '../target/types/ico';
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
+import { Ico } from "../target/types/ico";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { it } from "node:test";
-import { mint } from "../scripts/ico";
 
 // Create test keypairs
 const admin = anchor.web3.Keypair.generate();
@@ -28,9 +27,6 @@ const MINT_AMOUNT = 1_000_000 * LAMPORTS_PER_SOL;
 const TOKEN_AMOUNT = new BN(150);
 
 // Constant seeds
-const TEST_TOKEN = "Test";
-const TEST_1_TOKEN = "Test-1";
-const MINT = Buffer.from("mint");
 const MAINTAINERS = Buffer.from("maintainers");
 const CONFIG = Buffer.from("config");
 const WHITELIST = Buffer.from("whitelist");
@@ -46,13 +42,37 @@ describe("ico", () => {
   const program = anchor.workspace.Ico as Program<Ico>;
 
   // Declare PDAs
-  let pdaMaintainers,
-    pdaConfig,
-    pdaWhitelist,
-    pdaEscrow,
-    pdaVault,
-    pdaEscrowKey,
-    mintAccount = null;
+  let mintAccount = null;
+
+  const [pdaMaintainers] = anchor.web3.PublicKey.findProgramAddressSync(
+    [MAINTAINERS],
+    program.programId,
+  );
+
+  const [pdaEscrow] = anchor.web3.PublicKey.findProgramAddressSync(
+    [ESCROW],
+    program.programId,
+  );
+
+  const [pdaEscrowKey] = anchor.web3.PublicKey.findProgramAddressSync(
+    [ESCROW_KEY],
+    program.programId,
+  );
+
+  const [pdaVault] = anchor.web3.PublicKey.findProgramAddressSync(
+    [VAULT],
+    program.programId,
+  );
+
+  const [pdaWhitelist] = anchor.web3.PublicKey.findProgramAddressSync(
+    [WHITELIST],
+    program.programId,
+  );
+
+  const [pdaConfig] = anchor.web3.PublicKey.findProgramAddressSync(
+    [CONFIG],
+    program.programId,
+  );
 
   const confirmTransaction = async (tx) => {
     const latestBlockHash = await provider.connection.getLatestBlockhash();
@@ -114,9 +134,9 @@ describe("ico", () => {
     await confirmTransaction(manageWhitelist);
   };
 
-  const buyWithSol = async (buyWithSolParams, user, userAta) => {
+  const buyWithSol = async (solAmount, user, userAta) => {
     let buyWithSol = await program.methods
-      .buyWithSol(buyWithSolParams)
+      .buyWithSol(solAmount)
       .accounts({
         mintAccount,
         config: pdaConfig,
@@ -180,7 +200,7 @@ describe("ico", () => {
       payer,
       mintAuthority.publicKey,
       null,
-      9
+      9,
     );
 
     // Get user's token associated account
@@ -188,7 +208,7 @@ describe("ico", () => {
       provider.connection,
       payer,
       mintAccount,
-      vault.publicKey
+      vault.publicKey,
     );
 
     // Mint tokens to user
@@ -199,45 +219,15 @@ describe("ico", () => {
       vaultATA.address,
       mintAuthority,
       MINT_AMOUNT,
-      9
+      9,
     );
   });
 
   it("Initialize global account", async () => {
-    [pdaMaintainers] = anchor.web3.PublicKey.findProgramAddressSync(
-      [MAINTAINERS],
-      program.programId,
-    );
-
-    [pdaEscrow] = anchor.web3.PublicKey.findProgramAddressSync(
-      [ESCROW],
-      program.programId,
-    );
-
-    [pdaEscrowKey] = anchor.web3.PublicKey.findProgramAddressSync(
-      [ESCROW_KEY],
-      program.programId,
-    );
-
-    [pdaVault] = anchor.web3.PublicKey.findProgramAddressSync(
-      [VAULT],
-      program.programId,
-    );
-
-    [mintAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-      [MINT],
-      program.programId,
-    );
-
-    [pdaWhitelist] = anchor.web3.PublicKey.findProgramAddressSync(
-      [WHITELIST],
-      program.programId,
-    );
-
     let initParams = {
       royalty: 1,
       tokensPerSol: TOKEN_AMOUNT,
-      whitelists: []
+      whitelists: [payer.publicKey],
     };
 
     // Test initialize instruction
@@ -251,7 +241,7 @@ describe("ico", () => {
         escrowKey: pdaEscrowKey,
         escrowAccount: pdaEscrow,
         receiver: vault.publicKey,
-        mintAccount,  
+        mintAccount,
         authority: admin.publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -271,7 +261,7 @@ describe("ico", () => {
 
     let whitelist = await program.account.whitelistedUser.fetch(pdaWhitelist);
     assert.isTrue(
-      JSON.stringify(whitelist.users).includes(JSON.stringify(vault.publicKey)),
+      JSON.stringify(whitelist.users).includes(JSON.stringify(payer.publicKey)),
     );
 
     let escrowKey = await program.account.escrowKey.fetch(pdaEscrowKey);
@@ -282,11 +272,83 @@ describe("ico", () => {
     assert.equal(config.royalty, initParams.royalty);
   });
 
+  it("Test Buy with Sol Token", async () => {
+    // Creating associated token for user1 and Test
+    let user1ATA = await getOrCreateAssociatedTokenAccount(
+      provider.connection,
+      payer,
+      mintAccount,
+      user1.publicKey,
+    );
+
+    let user1Account = await getAccount(provider.connection, user1ATA.address);
+    let user1BalanceBeforeBuy = Number(user1Account.amount);
+
+    let user1SolBalanceBeforeBuy = await provider.connection.getBalance(
+      user1.publicKey,
+    );
+    let escrowSolBalanceBeforeBuy =
+      await provider.connection.getBalance(pdaEscrow);
+
+    let vaultAccount = await getAccount(provider.connection, pdaVault);
+    let vaultBalanceBeforeBuy = Number(vaultAccount.amount);
+
+    let escrowAccountBalanceBeforeBuy = (
+      await getAccount(provider.connection, pdaEscrow)
+    ).amount;
+
+    let solAmount = new BN(LAMPORTS_PER_SOL);
+
+    await buyWithSol(solAmount, user1, user1ATA.address);
+
+    let user1SolBalanceAfterBuy = await provider.connection.getBalance(
+      user1.publicKey,
+    );
+    let escrowSolBalanceAfterBuy =
+      await provider.connection.getBalance(pdaEscrow);
+
+    user1Account = await getAccount(provider.connection, user1ATA.address);
+    let user1BalanceAfterBuy = Number(user1Account.amount);
+
+    vaultAccount = await getAccount(provider.connection, pdaVault);
+    let vaultBalanceAfterBuy = Number(vaultAccount.amount);
+
+    // Check balances after buy
+    assert.equal(
+      user1SolBalanceAfterBuy,
+      user1SolBalanceBeforeBuy - Number(solAmount),
+    );
+    assert.equal(
+      escrowSolBalanceAfterBuy,
+      escrowSolBalanceBeforeBuy + Number(solAmount),
+    );
+
+    let config = await program.account.configuration.fetch(pdaConfig);
+
+    let tokenAmount =
+      Number(solAmount) * Number(config.tokensPerSol);
+    let royaltyAmount = (config.royalty * tokenAmount) / 100;
+    let transferrableAmount = tokenAmount - royaltyAmount;
+
+    assert.equal(
+      user1BalanceAfterBuy,
+      user1BalanceBeforeBuy + transferrableAmount,
+    );
+    assert.equal(vaultBalanceAfterBuy, vaultBalanceBeforeBuy + royaltyAmount);
+
+    let escrowAccountBalanceAfterBuy = (
+      await getAccount(provider.connection, pdaEscrow)
+    ).amount;
+    assert.equal(
+      Number(escrowAccountBalanceAfterBuy),
+      Number(escrowAccountBalanceBeforeBuy) - tokenAmount,
+    );
+  });
+
   it("Test Transfer Token", async () => {
     let transferAmount = new BN(50);
 
     let transferParams = {
-      token: TEST_TOKEN,
       toAccount: user1.publicKey,
       amount: transferAmount,
     };
@@ -297,10 +359,7 @@ describe("ico", () => {
       user1.publicKey,
     );
 
-    let user1Account = await getAccount(
-      provider.connection,
-      user1ATA,
-    );
+    let user1Account = await getAccount(provider.connection, user1ATA);
     let user1BalanceBeforeTransfer = Number(user1Account.amount);
 
     let user2ATA = await getOrCreateAssociatedTokenAccount(
@@ -310,24 +369,15 @@ describe("ico", () => {
       user2.publicKey,
     );
 
-    let user2Account = await getAccount(
-      provider.connection,
-      user2ATA.address,
-    );
+    let user2Account = await getAccount(provider.connection, user2ATA.address);
     let user2BalanceBeforeTransfer = Number(user2Account.amount);
 
     await transfer(transferParams, user1ATA, user2ATA.address);
 
-    user1Account = await getAccount(
-      provider.connection,
-      user1ATA,
-    );
+    user1Account = await getAccount(provider.connection, user1ATA);
     let user1BalanceAfterTransfer = Number(user1Account.amount);
 
-    user2Account = await getAccount(
-      provider.connection,
-      user2ATA.address,
-    );
+    user2Account = await getAccount(provider.connection, user2ATA.address);
     let user2BalanceAfterTransfer = Number(user2Account.amount);
 
     // Check balances after transfer
@@ -341,114 +391,15 @@ describe("ico", () => {
     );
   });
 
-  it("Test Buy with Sol Token", async () => {
-    // Creating associated token for user1 and Test
-    let user1ATA = await getAssociatedTokenAddress(
-      mintAccount,
-      user1.publicKey,
-    );
-
-    let user1Account = await getAccount(
-      provider.connection,
-      user1ATA,
-    );
-    let user1BalanceBeforeBuy = Number(user1Account.amount);
-
-    let user1SolBalanceBeforeBuy = await provider.connection.getBalance(
-      user1.publicKey,
-    );
-    let escrowSolBalanceBeforeBuy =
-      await provider.connection.getBalance(pdaEscrow);
-
-    let vaultAccount = await getAccount(
-      provider.connection,
-      pdaVault,
-    );
-    let vaultBalanceBeforeBuy = Number(vaultAccount.amount);
-
-    let escrowAccountBalanceBeforeBuy = (
-      await getAccount(
-        provider.connection,
-        pdaEscrow,
-      )
-    ).amount;
-
-    let buyWithSolParams = {
-      token: TEST_TOKEN,
-      solAmount: new BN(LAMPORTS_PER_SOL),
-    };
-
-    await buyWithSol(buyWithSolParams, user1, user1ATA);
-
-    let user1SolBalanceAfterBuy = await provider.connection.getBalance(
-      user1.publicKey,
-    );
-    let escrowSolBalanceAfterBuy =
-      await provider.connection.getBalance(pdaEscrow);
-
-    user1Account = await getAccount(
-      provider.connection,
-      user1ATA,
-    );
-    let user1BalanceAfterBuy = Number(user1Account.amount);
-
-    vaultAccount = await getAccount(
-      provider.connection,
-      pdaVault,
-    );
-    let vaultBalanceAfterBuy = Number(vaultAccount.amount);
-
-    // Check balances after buy
-    assert.equal(
-      user1SolBalanceAfterBuy,
-      user1SolBalanceBeforeBuy - Number(buyWithSolParams.solAmount),
-    );
-    assert.equal(
-      escrowSolBalanceAfterBuy,
-      escrowSolBalanceBeforeBuy + Number(buyWithSolParams.solAmount),
-    );
-
-    let config = await program.account.configuration.fetch(pdaConfig);
-
-    let tokenAmount =
-      Number(buyWithSolParams.solAmount) * Number(config.tokensPerSol);
-    let royaltyAmount = (config.royalty * tokenAmount) / 100;
-    let transferrableAmount = tokenAmount - royaltyAmount;
-
-    assert.equal(
-      user1BalanceAfterBuy,
-      user1BalanceBeforeBuy + transferrableAmount,
-    );
-    assert.equal(vaultBalanceAfterBuy, vaultBalanceBeforeBuy + royaltyAmount);
-
-    let escrowAccountBalanceAfterBuy = (
-      await getAccount(
-        provider.connection,
-        pdaEscrow,
-      )
-    ).amount;
-    assert.equal(
-      Number(escrowAccountBalanceAfterBuy),
-      Number(escrowAccountBalanceBeforeBuy) - tokenAmount,
-    );
-  });
-
   it("Test Claim", async () => {
-    let vaultAccountBalance = (
-      await getAccount(
-        provider.connection,
-        pdaVault,
-      )
-    ).amount;
+    let vaultAccountBalance = (await getAccount(provider.connection, pdaVault))
+      .amount;
     console.log(vaultAccountBalance);
 
-    let userATA = await getAssociatedTokenAddress(
-      mintAccount,
-      user2.publicKey,
-    );
+    let userATA = await getAssociatedTokenAddress(mintAccount, user2.publicKey);
 
     let claim = await program.methods
-      .claim(TEST_TOKEN)
+      .claim()
       .accounts({
         maintainers: pdaMaintainers,
         mintAccount: mintAccount,
@@ -462,12 +413,8 @@ describe("ico", () => {
 
     await confirmTransaction(claim);
 
-    vaultAccountBalance = (
-      await getAccount(
-        provider.connection,
-        pdaVault,
-      )
-    ).amount;
+    vaultAccountBalance = (await getAccount(provider.connection, pdaVault))
+      .amount;
     console.log(vaultAccountBalance);
   });
 
@@ -480,7 +427,6 @@ describe("ico", () => {
     escrow = await program.account.escrowKey.fetch(pdaEscrow);
     assert.equal(escrow.key.toBase58(), user2.publicKey.toBase58());
   });
-
 
   it("Test Update Admin", async () => {
     let oldAdmin = (await program.account.maintainers.fetch(pdaMaintainers))
@@ -557,11 +503,6 @@ describe("ico", () => {
   });
 
   it("Test Update Royalty", async () => {
-    [pdaConfig] = anchor.web3.PublicKey.findProgramAddressSync(
-      [CONFIG],
-      program.programId,
-    );
-
     let royalty = 2;
 
     let updateRoyalty = await program.methods
@@ -570,7 +511,6 @@ describe("ico", () => {
         maintainers: pdaMaintainers,
         config: pdaConfig,
         caller: admin.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([admin])
       .rpc();
@@ -586,12 +526,11 @@ describe("ico", () => {
     let tokensPerSol = new BN(1000);
 
     let updateTokensPerSol = await program.methods
-      .updateTokensPerSol(TEST_TOKEN, tokensPerSol)
+      .updateTokensPerSol(tokensPerSol)
       .accounts({
         maintainers: pdaMaintainers,
         config: pdaConfig,
         caller: admin.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([admin])
       .rpc();

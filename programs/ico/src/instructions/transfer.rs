@@ -14,7 +14,7 @@ pub fn transfer(ctx: Context<TransferTokens>, params: TransferParams) -> Result<
     let cpi_program = ctx.accounts.token_program.to_account_info();
     let whitelist = &mut ctx.accounts.whitelist;
 
-    let seeds = &[CONFIG_TAG, params.token.as_bytes(), &[ctx.bumps.config]];
+    let seeds = &[CONFIG_TAG, &[ctx.bumps.config]];
     let signer = [&seeds[..]];
 
     // Sending royalty tokens from vault account to escrow account
@@ -56,7 +56,6 @@ pub fn transfer(ctx: Context<TransferTokens>, params: TransferParams) -> Result<
 
     // Emit transfer event
     emit!(TransferEvent {
-        token: params.token,
         amount: params.amount,
         from: caller,
         to: ctx.accounts.to_account.to_account_info().key()
@@ -78,7 +77,7 @@ pub struct TransferTokens<'info> {
     pub mint_account: Box<Account<'info, Mint>>,
 
     #[account(
-        seeds = [CONFIG_TAG, params.token.as_bytes()],
+        seeds = [CONFIG_TAG],
         bump,
     )]
     pub config: Box<Account<'info, Configuration>>,

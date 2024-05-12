@@ -11,9 +11,14 @@ import {
   fetchContractBalances,
   setConfig,
   setEscrow,
-} from "./token-program";
+} from "./ico";
 
-import { initReceiverProgram, getReceiverBaseKeys, receive, fetchUsers } from "./receiver";
+import {
+  initReceiverProgram,
+  getReceiverBaseKeys,
+  receive,
+  fetchUsers,
+} from "./receiver";
 
 const callTheFunction = async () => {
   console.log("Triggering functions , please wait !");

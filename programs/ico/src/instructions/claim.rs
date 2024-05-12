@@ -4,7 +4,7 @@ use super::*;
 ///
 /// This function can throw following errors:
 ///   - Amount Can't Be Zero (when user passes 0 amount for mint).
-pub fn claim_royalty(ctx: Context<ClaimTokens>, token: String) -> Result<()> {
+pub fn claim_royalty(ctx: Context<ClaimTokens>) -> Result<()> {
     let sub_admins = &ctx.accounts.maintainers.sub_admins;
     let caller = ctx.accounts.authority.to_account_info().key();
 
@@ -13,7 +13,7 @@ pub fn claim_royalty(ctx: Context<ClaimTokens>, token: String) -> Result<()> {
 
     let cpi_program = ctx.accounts.token_program.to_account_info();
 
-    let seeds = &[VAULT_TAG, token.as_bytes(), &[ctx.bumps.escrow_account]];
+    let seeds = &[VAULT_TAG, &[ctx.bumps.escrow_account]];
     let signer = [&seeds[..]];
 
     // Create the Transfer struct for our context
@@ -32,7 +32,6 @@ pub fn claim_royalty(ctx: Context<ClaimTokens>, token: String) -> Result<()> {
 
     // Emit transfer event
     emit!(TransferEvent {
-        token,
         amount: ctx.accounts.escrow_account.amount,
         from: caller,
         to: ctx.accounts.to_account.to_account_info().key()
