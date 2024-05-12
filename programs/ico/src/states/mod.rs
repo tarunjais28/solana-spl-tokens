@@ -1,7 +1,7 @@
 use super::*;
 
-mod maintainers;
 mod config;
+mod maintainers;
 mod whitelist;
 
-pub use {maintainers::*, config::*, whitelist::*};
+pub use {config::*, maintainers::*, whitelist::*};

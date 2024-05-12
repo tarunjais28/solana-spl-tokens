@@ -58,17 +58,11 @@ pub mod ico {
         instructions::claim_royalty(ctx)
     }
 
-    pub fn update_royalty(
-        ctx: Context<UpdateConfig>,
-        royalty: u8,
-    ) -> Result<()> {
+    pub fn update_royalty(ctx: Context<UpdateConfig>, royalty: u8) -> Result<()> {
         instructions::update_royalty_percentage(ctx, royalty)
     }
 
-    pub fn update_tokens_per_sol(
-        ctx: Context<UpdateConfig>,
-        tokens_per_sol: u64,
-    ) -> Result<()> {
+    pub fn update_tokens_per_sol(ctx: Context<UpdateConfig>, tokens_per_sol: u64) -> Result<()> {
         instructions::update_token_per_sol(ctx, tokens_per_sol)
     }
 

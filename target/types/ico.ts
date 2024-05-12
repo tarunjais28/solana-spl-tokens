@@ -404,7 +404,7 @@ export type Ico = {
         },
         {
           "name": "escrowKey",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -1207,7 +1207,7 @@ export const IDL: Ico = {
         },
         {
           "name": "escrowKey",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {

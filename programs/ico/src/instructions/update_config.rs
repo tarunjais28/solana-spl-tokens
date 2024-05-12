@@ -1,10 +1,7 @@
 use super::*;
 
 /// Function to update royalty
-pub fn update_royalty_percentage(
-    ctx: Context<UpdateConfig>,
-    royalty: u8,
-) -> Result<()> {
+pub fn update_royalty_percentage(ctx: Context<UpdateConfig>, royalty: u8) -> Result<()> {
     let caller = ctx.accounts.caller.to_account_info().key();
     let sub_admins = &ctx.accounts.maintainers.sub_admins;
     let config = &mut ctx.accounts.config;
@@ -24,10 +21,7 @@ pub fn update_royalty_percentage(
 }
 
 /// Function to update tokens per sol
-pub fn update_token_per_sol(
-    ctx: Context<UpdateConfig>,
-    tokens_per_sol: u64,
-) -> Result<()> {
+pub fn update_token_per_sol(ctx: Context<UpdateConfig>, tokens_per_sol: u64) -> Result<()> {
     let caller = ctx.accounts.caller.to_account_info().key();
     let sub_admins = &ctx.accounts.maintainers.sub_admins;
     let config = &mut ctx.accounts.config;

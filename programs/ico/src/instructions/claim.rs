@@ -13,14 +13,14 @@ pub fn claim_royalty(ctx: Context<ClaimTokens>) -> Result<()> {
 
     let cpi_program = ctx.accounts.token_program.to_account_info();
 
-    let seeds = &[VAULT_TAG, &[ctx.bumps.escrow_account]];
+    let seeds = &[ESCROW_TAG, &[ctx.bumps.escrow_account]];
     let signer = [&seeds[..]];
 
     // Create the Transfer struct for our context
     let cpi_accounts = TransferChecked {
         mint: ctx.accounts.mint_account.to_account_info(),
         to: ctx.accounts.to_account.to_account_info(),
-        authority: ctx.accounts.mint_account.to_account_info(),
+        authority: ctx.accounts.escrow_account.to_account_info(),
         from: ctx.accounts.escrow_account.to_account_info(),
     };
 
@@ -41,7 +41,7 @@ pub fn claim_royalty(ctx: Context<ClaimTokens>) -> Result<()> {
 }
 
 #[derive(Accounts)]
-#[instruction(token: String)]
+#[instruction()]
 pub struct ClaimTokens<'info> {
     #[account(
         mut,

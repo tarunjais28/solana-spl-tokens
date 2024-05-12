@@ -5,10 +5,10 @@ use super::*;
 /// This function can throw following errors:
 ///   - Amount Can't Be Zero (when user passes 0 amount for mint).
 pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, sol_amount: u64) -> Result<()> {
-    let seeds = &[CONFIG_TAG, &[ctx.bumps.config]];
+    let seeds = &[VAULT_TAG, &[ctx.bumps.vault_account]];
     let signer = [&seeds[..]];
 
-    let cpi_program = ctx.accounts.token_program.to_account_info();
+    let cpi_program = ctx.accounts.system_program.to_account_info();
 
     // Transfer sols
     let cpi_accounts = anchor_lang::system_program::Transfer {
@@ -23,7 +23,7 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, sol_amount: u64) -> Result<(
     // Sending royalty tokens from vault account to escrow account
     let mut cpi_accounts = TransferChecked {
         to: ctx.accounts.escrow_account.to_account_info(),
-        authority: ctx.accounts.mint_account.to_account_info(),
+        authority: ctx.accounts.vault_account.to_account_info(),
         from: ctx.accounts.vault_account.to_account_info(),
         mint: ctx.accounts.mint_account.to_account_info(),
     };
@@ -53,7 +53,7 @@ pub fn buy_token_with_sol(ctx: Context<BuyWithSol>, sol_amount: u64) -> Result<(
     cpi_accounts = TransferChecked {
         mint: ctx.accounts.mint_account.to_account_info(),
         to: ctx.accounts.user_ata.to_account_info(),
-        authority: ctx.accounts.mint_account.to_account_info(),
+        authority: ctx.accounts.vault_account.to_account_info(),
         from: ctx.accounts.vault_account.to_account_info(),
     };
 
@@ -115,6 +115,7 @@ pub struct BuyWithSol<'info> {
 
     /// CHECK: Escrow key to validate valid sol receiver account
     #[account(
+        mut,
         seeds = [ESCROW_KEY_TAG],
         bump,
     )]

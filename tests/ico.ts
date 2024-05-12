@@ -202,25 +202,6 @@ describe("ico", () => {
       null,
       9,
     );
-
-    // Get user's token associated account
-    let vaultATA = await getOrCreateAssociatedTokenAccount(
-      provider.connection,
-      payer,
-      mintAccount,
-      vault.publicKey,
-    );
-
-    // Mint tokens to user
-    await mintToChecked(
-      provider.connection,
-      payer,
-      mintAccount,
-      vaultATA.address,
-      mintAuthority,
-      MINT_AMOUNT,
-      9,
-    );
   });
 
   it("Initialize global account", async () => {
@@ -281,76 +262,87 @@ describe("ico", () => {
       user1.publicKey,
     );
 
-    let user1Account = await getAccount(provider.connection, user1ATA.address);
-    let user1BalanceBeforeBuy = Number(user1Account.amount);
-
-    let user1SolBalanceBeforeBuy = await provider.connection.getBalance(
+    let user1TokenAccount = await getAccount(
+      provider.connection,
+      user1ATA.address,
+    );
+    let user1TokenBalanceBefore = Number(user1TokenAccount.amount);
+    let user1SolBalanceBefore = await provider.connection.getBalance(
       user1.publicKey,
     );
-    let escrowSolBalanceBeforeBuy =
-      await provider.connection.getBalance(pdaEscrow);
 
-    let vaultAccount = await getAccount(provider.connection, pdaVault);
-    let vaultBalanceBeforeBuy = Number(vaultAccount.amount);
+    let escrowTokenAccount = await getAccount(provider.connection, pdaEscrow);
+    let escrowTokenBalanceBefore = Number(escrowTokenAccount.amount);
 
-    let escrowAccountBalanceBeforeBuy = (
-      await getAccount(provider.connection, pdaEscrow)
-    ).amount;
+    // Mint tokens to user
+    await mintToChecked(
+      provider.connection,
+      payer,
+      mintAccount,
+      pdaVault,
+      mintAuthority,
+      MINT_AMOUNT,
+      9,
+    );
+
+    let vaultTokenAccount = await getAccount(provider.connection, pdaVault);
+    let vaultTokenBalanceBefore = Number(vaultTokenAccount.amount);
+
+    let vaultBalanceBefore = await provider.connection.getBalance(
+      vault.publicKey,
+    );
 
     let solAmount = new BN(LAMPORTS_PER_SOL);
 
     await buyWithSol(solAmount, user1, user1ATA.address);
 
-    let user1SolBalanceAfterBuy = await provider.connection.getBalance(
+    user1TokenAccount = await getAccount(provider.connection, user1ATA.address);
+    let user1TokenBalanceAfter = Number(user1TokenAccount.amount);
+    let user1SolBalanceAfter = await provider.connection.getBalance(
       user1.publicKey,
     );
-    let escrowSolBalanceAfterBuy =
-      await provider.connection.getBalance(pdaEscrow);
 
-    user1Account = await getAccount(provider.connection, user1ATA.address);
-    let user1BalanceAfterBuy = Number(user1Account.amount);
+    escrowTokenAccount = await getAccount(provider.connection, pdaEscrow);
+    let escrowTokenBalanceAfter = Number(escrowTokenAccount.amount);
 
-    vaultAccount = await getAccount(provider.connection, pdaVault);
-    let vaultBalanceAfterBuy = Number(vaultAccount.amount);
+    vaultTokenAccount = await getAccount(provider.connection, pdaVault);
+    let vaultTokenBalanceAfter = Number(vaultTokenAccount.amount);
+
+    let vaultBalanceAfter = await provider.connection.getBalance(
+      vault.publicKey,
+    );
 
     // Check balances after buy
     assert.equal(
-      user1SolBalanceAfterBuy,
-      user1SolBalanceBeforeBuy - Number(solAmount),
+      user1SolBalanceAfter,
+      user1SolBalanceBefore - Number(solAmount),
     );
-    assert.equal(
-      escrowSolBalanceAfterBuy,
-      escrowSolBalanceBeforeBuy + Number(solAmount),
-    );
+    assert.equal(vaultBalanceAfter, vaultBalanceBefore + Number(solAmount));
 
     let config = await program.account.configuration.fetch(pdaConfig);
 
-    let tokenAmount =
-      Number(solAmount) * Number(config.tokensPerSol);
+    let tokenAmount = Number(solAmount) * Number(config.tokensPerSol);
     let royaltyAmount = (config.royalty * tokenAmount) / 100;
     let transferrableAmount = tokenAmount - royaltyAmount;
 
     assert.equal(
-      user1BalanceAfterBuy,
-      user1BalanceBeforeBuy + transferrableAmount,
+      user1TokenBalanceAfter,
+      user1TokenBalanceBefore + transferrableAmount,
     );
-    assert.equal(vaultBalanceAfterBuy, vaultBalanceBeforeBuy + royaltyAmount);
-
-    let escrowAccountBalanceAfterBuy = (
-      await getAccount(provider.connection, pdaEscrow)
-    ).amount;
     assert.equal(
-      Number(escrowAccountBalanceAfterBuy),
-      Number(escrowAccountBalanceBeforeBuy) - tokenAmount,
+      vaultTokenBalanceAfter,
+      vaultTokenBalanceBefore - (transferrableAmount + royaltyAmount),
+    );
+    assert.equal(
+      escrowTokenBalanceAfter,
+      escrowTokenBalanceBefore + royaltyAmount,
     );
   });
 
   it("Test Transfer Token", async () => {
-    let transferAmount = new BN(50);
-
     let transferParams = {
       toAccount: user1.publicKey,
-      amount: transferAmount,
+      amount: new BN(50 * LAMPORTS_PER_SOL),
     };
 
     // Creating associated token for user1 and Test
@@ -372,6 +364,9 @@ describe("ico", () => {
     let user2Account = await getAccount(provider.connection, user2ATA.address);
     let user2BalanceBeforeTransfer = Number(user2Account.amount);
 
+    let escrowTokenAccount = await getAccount(provider.connection, pdaEscrow);
+    let escrowTokenBalanceBefore = Number(escrowTokenAccount.amount);
+
     await transfer(transferParams, user1ATA, user2ATA.address);
 
     user1Account = await getAccount(provider.connection, user1ATA);
@@ -380,23 +375,37 @@ describe("ico", () => {
     user2Account = await getAccount(provider.connection, user2ATA.address);
     let user2BalanceAfterTransfer = Number(user2Account.amount);
 
+    escrowTokenAccount = await getAccount(provider.connection, pdaEscrow);
+    let escrowTokenBalanceAfter = Number(escrowTokenAccount.amount);
+
+    let config = await program.account.configuration.fetch(pdaConfig);
+    let royaltyAmount = (config.royalty * Number(transferParams.amount)) / 100;
+    let transferrableAmount = Number(transferParams.amount) - royaltyAmount;
+
     // Check balances after transfer
     assert.equal(
       user1BalanceAfterTransfer,
-      user1BalanceBeforeTransfer - Number(transferAmount),
+      user1BalanceBeforeTransfer - Number(transferParams.amount),
     );
     assert.equal(
       user2BalanceAfterTransfer,
-      user2BalanceBeforeTransfer + Number(transferAmount),
+      user2BalanceBeforeTransfer + Number(transferrableAmount),
+    );
+    assert.equal(
+      escrowTokenBalanceAfter,
+      escrowTokenBalanceBefore + royaltyAmount,
     );
   });
 
   it("Test Claim", async () => {
-    let vaultAccountBalance = (await getAccount(provider.connection, pdaVault))
-      .amount;
-    console.log(vaultAccountBalance);
+    let escrowAccountBalanceBefore = (
+      await getAccount(provider.connection, pdaEscrow)
+    ).amount;
 
     let userATA = await getAssociatedTokenAddress(mintAccount, user2.publicKey);
+    let userAccountBalanceBefore = (
+      await getAccount(provider.connection, userATA)
+    ).amount;
 
     let claim = await program.methods
       .claim()
@@ -413,18 +422,29 @@ describe("ico", () => {
 
     await confirmTransaction(claim);
 
-    vaultAccountBalance = (await getAccount(provider.connection, pdaVault))
-      .amount;
-    console.log(vaultAccountBalance);
+    let escrowAccountBalanceAfter = (
+      await getAccount(provider.connection, pdaEscrow)
+    ).amount;
+
+    let userAccountBalanceAfter = (
+      await getAccount(provider.connection, userATA)
+    ).amount;
+
+    // Checking balances
+    assert.equal(Number(escrowAccountBalanceAfter), 0);
+    assert.equal(
+      Number(userAccountBalanceAfter),
+      Number(userAccountBalanceBefore) + Number(escrowAccountBalanceBefore),
+    );
   });
 
   it("Test Update Escrow Account", async () => {
-    let escrow = await program.account.escrowKey.fetch(pdaEscrow);
+    let escrow = await program.account.escrowKey.fetch(pdaEscrowKey);
     assert.equal(escrow.key.toBase58(), vault.publicKey.toBase58());
 
     await setEscrow(user2.publicKey);
 
-    escrow = await program.account.escrowKey.fetch(pdaEscrow);
+    escrow = await program.account.escrowKey.fetch(pdaEscrowKey);
     assert.equal(escrow.key.toBase58(), user2.publicKey.toBase58());
   });
 
@@ -555,7 +575,7 @@ describe("ico", () => {
     whitelist = await program.account.whitelistedUser.fetch(pdaWhitelist);
     assert.equal(whitelist.users.length, 3);
     assert.isTrue(
-      JSON.stringify(whitelist.users).includes(JSON.stringify(vault.publicKey)),
+      JSON.stringify(whitelist.users).includes(JSON.stringify(payer.publicKey)),
     );
     assert.isTrue(
       JSON.stringify(whitelist.users).includes(JSON.stringify(user1.publicKey)),
@@ -579,7 +599,7 @@ describe("ico", () => {
     whitelist = await program.account.whitelistedUser.fetch(pdaWhitelist);
     assert.equal(whitelist.users.length, 1);
     assert.isTrue(
-      JSON.stringify(whitelist.users).includes(JSON.stringify(vault.publicKey)),
+      JSON.stringify(whitelist.users).includes(JSON.stringify(payer.publicKey)),
     );
     assert.isFalse(
       JSON.stringify(whitelist.users).includes(JSON.stringify(user1.publicKey)),

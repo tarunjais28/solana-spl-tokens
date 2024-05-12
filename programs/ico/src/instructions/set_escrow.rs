@@ -28,7 +28,7 @@ pub struct SetEscrow<'info> {
 
     #[account(
         mut,
-        seeds = [ESCROW_TAG],
+        seeds = [ESCROW_KEY_TAG],
         bump,
     )]
     pub escrow_key: Box<Account<'info, EscrowKey>>,
