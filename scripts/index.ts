@@ -9,6 +9,7 @@ import {
   setEscrow,
   initIcoProgram,
   initIcoResources,
+  claim,
 } from "./ico";
 
 import {
@@ -31,9 +32,10 @@ const callTheFunction = async () => {
   // await setConfig();
   // await mint();
   // await fetchBalances();
-  await buyWithSol();
+  // await buyWithSol();
   // await getIcoBaseKeys();
-  // await fetchContractBalances();
+  await claim();
+  await fetchContractBalances();
 
   // await initReceiverProgram();
   // await getReceiverBaseKeys();

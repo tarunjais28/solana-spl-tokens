@@ -201,8 +201,6 @@ const setEscrow = async () => {
 };
 
 const buyWithSol = async () => {
-  let user = new PublicKey("ArZEdFt7rq9Eoc1T4DoppEYh9vrdBHgLATxsFKRytfxr");
-
   const rawPayerKeypair = JSON.parse(
     fs.readFileSync("/home/tarunjais/.config/solana/id.json", "utf-8"),
   );
@@ -238,6 +236,22 @@ const buyWithSol = async () => {
     .rpc();
 };
 
+const claim = async () => {
+  let userATA = await getAssociatedTokenAddress(mintAccount, AdminAddress);
+
+  await program.methods
+    .claim()
+    .accounts({
+      maintainers: pdaMaintainers,
+      mintAccount: mintAccount,
+      escrowAccount: pdaEscrow,
+      toAccount: userATA,
+      authority: AdminAddress,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .rpc();
+};
+
 export {
   fetchMaintainers,
   updateTokenProgramAdmin,
@@ -250,4 +264,5 @@ export {
   setConfig,
   setEscrow,
   initIcoResources,
+  claim,
 };
