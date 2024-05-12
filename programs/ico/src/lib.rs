@@ -1,8 +1,7 @@
 use crate::{constants::*, enums::*, errors::*, events::*, instructions::*, states::*, structs::*};
 use anchor_lang::{
     prelude::*,
-    solana_program::{account_info::AccountInfo, program::invoke, rent::Rent, sysvar::Sysvar},
-    Lamports,
+    solana_program::{account_info::AccountInfo, rent::Rent, sysvar::Sysvar},
 };
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
@@ -14,7 +13,7 @@ mod instructions;
 mod states;
 mod structs;
 
-declare_id!("CCazZm7etsEJ8ncqG9PnWPLg4wgaHBgtQwD1GAPsboxt");
+declare_id!("EpVxtDLVHNtLHH1aXgSsCAHs6JAcAz2DwfESLEpiqpKo");
 
 #[program]
 pub mod ico {
@@ -22,6 +21,10 @@ pub mod ico {
 
     pub fn init(ctx: Context<Initialize>, params: InitParams) -> Result<()> {
         instructions::initialize(ctx, params)
+    }
+
+    pub fn init_resource_accounts(ctx: Context<InitResources>) -> Result<()> {
+        instructions::init_resources(ctx)
     }
 
     pub fn manage_admin(ctx: Context<UpdateAdmin>, address: Pubkey) -> Result<()> {

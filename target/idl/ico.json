@@ -58,16 +58,6 @@
           "isSigner": false
         },
         {
-          "name": "escrowAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "vaultAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "escrowKey",
           "isMut": true,
           "isSigner": false
@@ -101,6 +91,42 @@
           }
         }
       ]
+    },
+    {
+      "name": "initResourceAccounts",
+      "accounts": [
+        {
+          "name": "escrowAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mintAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "manageAdmin",
@@ -800,6 +826,6 @@
     }
   ],
   "metadata": {
-    "address": "CCazZm7etsEJ8ncqG9PnWPLg4wgaHBgtQwD1GAPsboxt"
+    "address": "EpVxtDLVHNtLHH1aXgSsCAHs6JAcAz2DwfESLEpiqpKo"
   }
 }

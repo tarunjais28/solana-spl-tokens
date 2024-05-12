@@ -5,9 +5,8 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-# token_program = "CCazZm7etsEJ8ncqG9PnWPLg4wgaHBgtQwD1GAPsboxt"
 receiver = "A5nYM6ba7vZEsKijDtfKLVcfEG4S2Ec5kJ4AjAv5qSRK"
-# ico = "73i8QfnJhvrnUJw1Edg3VhV8ttdK9x9pP3jgL8PaUL2t"
+ico = "EpVxtDLVHNtLHH1aXgSsCAHs6JAcAz2DwfESLEpiqpKo"
 
 [registry]
 url = "https://api.apr.dev"

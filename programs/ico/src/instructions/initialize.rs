@@ -16,13 +16,6 @@ pub fn initialize(ctx: Context<Initialize>, params: InitParams) -> Result<()> {
     let escrow = &mut ctx.accounts.escrow_key;
     escrow.key = ctx.accounts.receiver.key();
 
-    // transfer minimum rent to mint account
-    update_account_lamports_to_minimum_balance(
-        ctx.accounts.mint_account.to_account_info(),
-        ctx.accounts.authority.to_account_info(),
-        ctx.accounts.system_program.to_account_info(),
-    )?;
-
     // Emit init event
     emit!(InitEvent {
         admin: caller,
@@ -65,26 +58,6 @@ pub struct Initialize<'info> {
 
     /// CHECK: Receiver account
     pub receiver: AccountInfo<'info>,
-
-    #[account(
-        init,
-        token::mint = mint_account,
-        token::authority = escrow_account,
-        seeds = [ESCROW_TAG],
-        bump,
-        payer = authority,
-    )]
-    pub escrow_account: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-        init,
-        token::mint = mint_account,
-        token::authority = vault_account,
-        seeds = [VAULT_TAG],
-        bump,
-        payer = authority,
-    )]
-    pub vault_account: Box<Account<'info, TokenAccount>>,
 
     #[account(
         init,

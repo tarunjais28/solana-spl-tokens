@@ -218,9 +218,7 @@ describe("ico", () => {
         maintainers: pdaMaintainers,
         config: pdaConfig,
         whitelist: pdaWhitelist,
-        vaultAccount: pdaVault,
         escrowKey: pdaEscrowKey,
-        escrowAccount: pdaEscrow,
         receiver: vault.publicKey,
         mintAccount,
         authority: admin.publicKey,
@@ -251,6 +249,24 @@ describe("ico", () => {
     let config = await program.account.configuration.fetch(pdaConfig);
     assert.equal(Number(config.tokensPerSol), Number(initParams.tokensPerSol));
     assert.equal(config.royalty, initParams.royalty);
+  });
+
+  it("Test Init Resources", async () => {
+    // Test initialize instruction
+    let init = await program.methods
+      .initResourceAccounts()
+      .accounts({
+        vaultAccount: pdaVault,
+        escrowAccount: pdaEscrow,
+        mintAccount,
+        authority: admin.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([admin])
+      .rpc();
+
+    await confirmTransaction(init);
   });
 
   it("Test Buy with Sol Token", async () => {
